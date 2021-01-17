@@ -294,9 +294,7 @@ class RootViewController: UIViewController, UISearchControllerDelegate, UISplitV
     
     @objc func libraryButtonTapped() {
         if #available(iOS 14.0, *), FeatureFlags.swiftUIBasedLibraryEnabled {
-            let controller = UIHostingController(rootView: LibraryView())
-            controller.rootView.dismiss = { controller.dismiss(animated: true) }
-            controller.modalPresentationStyle = .pageSheet
+            let controller = LibraryViewController()
             present(controller, animated: true)
         } else {
             let libraryController = self.libraryController ?? LibraryController(onDismiss: {
