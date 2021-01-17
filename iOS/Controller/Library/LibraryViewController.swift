@@ -6,8 +6,10 @@
 //  Copyright © 2021 Chris Li. All rights reserved.
 //
 
+import Combine
 import SwiftUI
 import UIKit
+import RealmSwift
 
 @available(iOS 13.0, *)
 class LibraryViewController: UISplitViewController, UISplitViewControllerDelegate {
@@ -64,10 +66,18 @@ class LibraryViewController: UISplitViewController, UISplitViewControllerDelegat
 
 @available(iOS 13.0, *)
 private struct LibrarySidebarView: View {
+    @ObservedObject private var viewModel = ViewModel()
     var categoryTapped: ((ZimFile.Category) -> Void) = { _ in }
     
     var body: some View {
         List {
+            if viewModel.totalZimFileCount == 0 {
+                Section(header: Text("Add Files")) {
+                    Button("Fetch Online Catalog", action: { viewModel.fetchOnlineCatalog() })
+                    Button("From Files App", action: {})
+                    Button("From Your Computer", action: {})
+                }
+            }
             Section(header: Text("Categories")) {
                 ForEach(ZimFile.Category.allCases) { category in
                     categoryView(category)
@@ -97,5 +107,30 @@ private struct LibrarySidebarView: View {
                     .foregroundColor(Color(.systemFill))
             }
         })
+    }
+}
+
+@available(iOS 13.0, *)
+private class ViewModel: ObservableObject {
+    @Published private(set) var totalZimFileCount: Int?
+    
+    private let queue = DispatchQueue(label: "org.kiwix.libraryUI.sidebar", qos: .userInitiated)
+    private let database = try? Realm(configuration: Realm.defaultConfig)
+    private var totalZimFileCountObserver: AnyCancellable? = nil
+    
+    init() {
+        totalZimFileCountObserver = database?.objects(ZimFile.self)
+            .collectionPublisher
+            .subscribe(on: queue)
+            .freeze()
+            .map { $0.count }
+            .receive(on: DispatchQueue.main)
+            .catch { _ in Just(0) }
+            .sink { [weak self] count in withAnimation { self?.totalZimFileCount = count } }
+    }
+    
+    func fetchOnlineCatalog() {
+        let operation = OPDSRefreshOperation()
+        LibraryOperationQueue.shared.addOperation(operation)
     }
 }
