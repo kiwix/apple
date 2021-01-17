@@ -109,18 +109,18 @@ class ZimFile: Object, Identifiable {
         case remote, onDevice, retained, downloadQueued, downloadInProgress, downloadPaused, downloadError
     }
     
-    enum Category: String, Comparable, CustomStringConvertible {
+    enum Category: String, CaseIterable, Comparable, CustomStringConvertible, Identifiable {
+        case wikipedia
         case wikibooks
         case wikinews
-        case wikipedia
         case wikiquote
         case wikisource
         case wikiversity
         case wikivoyage
         case wiktionary
         
-        case ted
         case vikidia
+        case ted
         case stackExchange = "stack_exchange"
         case other
         
@@ -128,6 +128,7 @@ class ZimFile: Object, Identifiable {
             lhs.sortOrder < rhs.sortOrder
         }
         
+        var id: String { self.rawValue }
         var description: String {
             switch self {
             case .wikibooks:
