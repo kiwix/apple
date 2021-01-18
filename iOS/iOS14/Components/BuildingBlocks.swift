@@ -28,7 +28,16 @@ struct WebView: UIViewRepresentable {
     func updateUIView(_ uiView: WKWebView, context: Context) { }
 }
 
-@available(iOS 14.0, *)
+@available(iOS 13.0, *)
+struct DisclosureIndicator: View {
+    var body: some View {
+        Image(systemName: "chevron.forward")
+            .font(Font.footnote.weight(.bold))
+            .foregroundColor(Color(.systemFill))
+    }
+}
+
+@available(iOS 13.0, *)
 struct Favicon: View {
     let zimFile: ZimFile?
     

@@ -102,9 +102,7 @@ private struct LibrarySidebarView: View {
                     .clipShape(RoundedRectangle(cornerRadius: 4, style: .continuous))
                 Text(category.description).foregroundColor(.primary)
                 Spacer()
-                Image(systemName: "chevron.forward")
-                    .font(Font.footnote.weight(.bold))
-                    .foregroundColor(Color(.systemFill))
+                DisclosureIndicator()
             }
         })
     }
