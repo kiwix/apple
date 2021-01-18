@@ -49,17 +49,30 @@ struct LibraryCategoryView: View {
                 if let zimFiles = viewModel.zimFiles[language.code] {
                     Section(header: viewModel.languages.count > 1 ? Text(language.name) : nil) {
                         ForEach(zimFiles) { zimFile in
-                            HStack {
-                                VStack(alignment: .leading) {
-                                    Text(zimFile.title)
-                                    Text(zimFile.sizeDescription ?? "").font(.footnote)
-                                }
-                                Spacer()
-                                DisclosureIndicator()
-                            }
+                            zimFileView(zimFile)
                         }
                     }
                 }
+            }
+        }
+    }
+    
+    func zimFileView(_ zimFile: ZimFile) -> some View {
+        Button {
+            
+        } label: {
+            HStack {
+                Favicon(zimFile: zimFile)
+                VStack(alignment: .leading) {
+                    Text(zimFile.title)
+                    Text([
+                        zimFile.sizeDescription,
+                        zimFile.creationDateDescription,
+                        zimFile.articleCountShortDescription,
+                    ].compactMap({ $0 }).joined(separator: ", ")).font(.footnote)
+                }
+                Spacer()
+                DisclosureIndicator()
             }
         }
     }

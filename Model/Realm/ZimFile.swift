@@ -94,7 +94,7 @@ class ZimFile: Object, Identifiable {
         guard let creationDate = creationDate else { return nil }
         let formatter = DateFormatter()
         formatter.dateFormat = "MM-dd-yyyy"
-        formatter.dateStyle = .medium
+        formatter.dateStyle = .short
         return formatter.string(from: creationDate)
     }
     
