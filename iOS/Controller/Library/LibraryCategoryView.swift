@@ -87,23 +87,24 @@ private class ViewModel: ObservableObject {
     private var languageObserver: Defaults.Observation?
     private let queue = DispatchQueue(label: "org.kiwix.libraryUI.category", qos: .userInitiated)
     private let database = try? Realm(configuration: Realm.defaultConfig)
-    private var pipeline: AnyCancellable? = nil
+    private var zimFilesObserver: AnyCancellable? = nil
+    private var pipeline2: AnyCancellable? = nil
     
     init(category: ZimFile.Category) {
         self.category = category
         self.languageObserver = Defaults.observe(.libraryFilterLanguageCodes) { [weak self] change in
             self?.configure(languageCodes: change.newValue)
+            self?.fetchZimFileFavicons()
         }
     }
     
     private func configure(languageCodes: [String]) {
         languages = languageCodes.compactMap({ Language(code: $0) }).sorted()
-        pipeline = database?.objects(ZimFile.self)
-            .filter(NSPredicate(format: "languageCode IN %@ AND categoryRaw == %@",
-                                languages.map({ $0.code }),
-                                category.rawValue)
-            )
-            .sorted(byKeyPath: "title", ascending: true)
+        zimFilesObserver = database?.objects(ZimFile.self)
+            .filter(NSCompoundPredicate(andPredicateWithSubpredicates: [
+                NSPredicate(format: "languageCode IN %@", languages.map({ $0.code })),
+                NSPredicate(format: "categoryRaw == %@", category.rawValue),
+            ]))
             .sorted(by: [
                 SortDescriptor(keyPath: "title", ascending: true),
                 SortDescriptor(keyPath: "size", ascending: false),
@@ -121,5 +122,40 @@ private class ViewModel: ObservableObject {
             .receive(on: DispatchQueue.main)
             .catch { _ in Just([:]) }
             .assign(to: \.zimFiles, on: self)
+    }
+    
+    private func fetchZimFileFavicons() {
+        do {
+            let database = try Realm(configuration: Realm.defaultConfig)
+            let tasks = database.objects(ZimFile.self)
+                .filter(NSCompoundPredicate(andPredicateWithSubpredicates: [
+                    NSPredicate(format: "languageCode IN %@", languages.map({ $0.code })),
+                    NSPredicate(format: "categoryRaw == %@", category.rawValue),
+                    NSPredicate(format: "faviconURL != nil"),
+                    NSPredicate(format: "faviconData == nil"),
+                ]))
+                .compactMap { $0.faviconURL }
+                .compactMap { URL(string: $0) }
+                .compactMap { URLSession.shared.dataTaskPublisher(for: $0) }
+            pipeline2 = Publishers.MergeMany(tasks)
+                .collect(5)
+                .sink(receiveCompletion: { _ in }, receiveValue: { batch in
+                    do {
+                        let database = try Realm(configuration: Realm.defaultConfig)
+                        try database.write {
+                            batch.forEach { data, response in
+                                guard let response = response as? HTTPURLResponse,
+                                      response.statusCode >= 200,
+                                      let url = response.url else { return }
+                                let zimFiles = database.objects(ZimFile.self)
+                                    .filter(NSPredicate(format: "faviconURL == %@", url.absoluteString))
+                                zimFiles.forEach { zimFile in
+                                    zimFile.faviconData = data
+                                }
+                            }
+                        }
+                    } catch {}
+                })
+        } catch {}
     }
 }
