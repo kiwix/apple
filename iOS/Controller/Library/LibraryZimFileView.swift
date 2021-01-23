@@ -11,16 +11,33 @@ import RealmSwift
 
 @available(iOS 13.0, *)
 struct LibraryZimFileView: View {
-//    @ObservedObject private var viewModel: ViewModel
+    @ObservedObject private var viewModel: ViewModel
     private let zimFile: ZimFile
     
     init(_ zimFile: ZimFile) {
         self.zimFile = zimFile
-//        self.viewModel = ViewModel(zimFileID: zimFile.id)
+        self.viewModel = ViewModel(zimFile)
     }
     
     var body: some View {
         SwiftUI.List {
+            Section {
+                Text(zimFile.title)
+                Text(zimFile.fileDescription)
+            }
+            Section {
+                switch viewModel.state {
+                case ZimFile.State.remote:
+                    Button(action: {}, label: { row(action: "Download")} )
+                default:
+                    Button(action: {}, label: { row(action: "Cancel") })
+                }
+                
+//                Button(action: {}, label: { row(action: "Pause") })
+//                Button(action: {}, label: { row(action: "Cancel") })
+//                Button(action: {}, label: { row(action: "Delete", isDestructive: true) })
+//                Button(action: {}, label: { row(action: "Unlink", isDestructive: true) })
+            }
             Section {
                 row(title: "Language", detail: zimFile.languageDescription)
                 row(title: "Size", detail: zimFile.sizeDescription)
@@ -47,6 +64,18 @@ struct LibraryZimFileView: View {
         .navigationBarTitle(zimFile.title)
     }
     
+    func row(action: String, isDestructive: Bool = false) -> some View {
+        HStack {
+            Spacer()
+            if isDestructive {
+                Text(action).fontWeight(.medium).foregroundColor(.red)
+            } else {
+                Text(action).fontWeight(.medium)
+            }
+            Spacer()
+        }
+    }
+    
     func row(title: String, detail: String?) -> some View {
         HStack {
             Text(title)
@@ -68,40 +97,30 @@ struct LibraryZimFileView: View {
     }
 }
 
-//@available(iOS 13.0, *)
-//private class ViewModel: ObservableObject {
-//
-//
-//    let id: String
-//    let shortID: String
-//    let language: String?
-//    let creator: String?
-//    let publisher: String?
-//    let articleCount: String?
-//    let mediaCount: String?
-//
-//    init(zimFileID: String) {
-//        self.id = zimFileID
-//        self.shortID = String(zimFileID.prefix(8))
-//
-//        if let database = try? Realm(configuration: Realm.defaultConfig),
-//           let zimFile = database.object(ofType: ZimFile.self, forPrimaryKey: zimFileID) {
-//            self.language = Locale.current.localizedString(forLanguageCode: zimFile.languageCode)
-//            self.creator = zimFile.creator
-//            self.publisher = zimFile.publisher
-//            self.articleCount = ViewModel.numberFormatter.string(from: NSNumber(value: zimFile.articleCount.value ?? 0))
-//            self.mediaCount = ViewModel.numberFormatter.string(from: NSNumber(value: zimFile.mediaCount.value ?? 0))
-//        } else {
-//            self.language = nil
-//            self.creator = nil
-//            self.publisher = nil
-//            self.articleCount = nil
-//            self.mediaCount = nil
-//        }
-//    }
-//}
-
-
+@available(iOS 13.0, *)
+private class ViewModel: ObservableObject {
+    @Published var state: ZimFile.State
+    private var notificationToken : NotificationToken?
+    
+    init(_ zimFile: ZimFile) {
+        self.state = zimFile.state
+        self.notificationToken = zimFile.observe { change in
+            switch change {
+                case .change(let object, let properties):
+                    guard let zimFile = object as? ZimFile else { return }
+                    for property in properties {
+                        if property.name == "stateRaw" {
+                            self.state = zimFile.state
+                        }
+                    }
+                case .deleted:
+                    print("The object was deleted.")
+                default:
+                    break
+                }
+        }
+    }
+}
 
 @available(iOS 13.0, *)
 struct LibraryZimFileView_Previews: PreviewProvider {
