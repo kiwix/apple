@@ -88,7 +88,7 @@ private class ViewModel: ObservableObject {
     private let queue = DispatchQueue(label: "org.kiwix.libraryUI.category", qos: .userInitiated)
     private let database = try? Realm(configuration: Realm.defaultConfig)
     private var zimFilesObserver: AnyCancellable? = nil
-    private var pipeline2: AnyCancellable? = nil
+    private var faviconFetchPipeline: AnyCancellable? = nil
     
     init(category: ZimFile.Category) {
         self.category = category
@@ -137,7 +137,7 @@ private class ViewModel: ObservableObject {
                 .compactMap { $0.faviconURL }
                 .compactMap { URL(string: $0) }
                 .compactMap { URLSession.shared.dataTaskPublisher(for: $0) }
-            pipeline2 = Publishers.MergeMany(tasks)
+            faviconFetchPipeline = Publishers.MergeMany(tasks)
                 .collect(5)
                 .sink(receiveCompletion: { _ in }, receiveValue: { batch in
                     do {
