@@ -76,7 +76,7 @@ class ZimFile: Object, Identifiable {
     // MARK: - Descriptions
     
     override var description: String {
-        [self.sizeDescription, self.creationDateDescription, self.articleCountLongDescription]
+        [self.sizeDescription, self.creationDateShortDescription, self.articleCountLongDescription]
             .compactMap({ $0 })
             .joined(separator: ", ")
     }
@@ -97,6 +97,14 @@ class ZimFile: Object, Identifiable {
     }
     
     var creationDateDescription: String? {
+        guard let creationDate = creationDate else { return nil }
+        let formatter = DateFormatter()
+        formatter.dateFormat = "MM-dd-yyyy"
+        formatter.dateStyle = .long
+        return formatter.string(from: creationDate)
+    }
+    
+    var creationDateShortDescription: String? {
         guard let creationDate = creationDate else { return nil }
         let formatter = DateFormatter()
         formatter.dateFormat = "MM-dd-yyyy"

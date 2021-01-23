@@ -133,7 +133,7 @@ class SearchFilterController: UIViewController, UITableViewDelegate, UITableView
         guard let zimFile = zimFiles?[indexPath.row] else { return }
         cell.titleLabel.text = zimFile.title
         cell.detailLabel.text = [
-            zimFile.sizeDescription, zimFile.creationDateDescription, zimFile.articleCountLongDescription
+            zimFile.sizeDescription, zimFile.creationDateShortDescription, zimFile.articleCountLongDescription
         ].compactMap({ $0 }).joined(separator: ", ")
         cell.thumbImageView.image = UIImage(data: zimFile.faviconData ?? Data()) ?? #imageLiteral(resourceName: "GenericZimFile")
         cell.thumbImageView.contentMode = .scaleAspectFit

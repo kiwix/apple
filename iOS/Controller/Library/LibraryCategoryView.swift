@@ -68,7 +68,7 @@ struct LibraryCategoryView: View {
                     Text(zimFile.title)
                     Text([
                         zimFile.sizeDescription,
-                        zimFile.creationDateDescription,
+                        zimFile.creationDateShortDescription,
                         zimFile.articleCountShortDescription,
                     ].compactMap({ $0 }).joined(separator: ", ")).font(.footnote)
                 }

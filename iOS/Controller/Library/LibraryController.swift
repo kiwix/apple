@@ -49,7 +49,7 @@ class TableViewCellConfigurator: UIViewController {
     class func configure(_ cell: TableViewCell, zimFile: ZimFile, tableView: UITableView, indexPath: IndexPath) {
         cell.titleLabel.text = zimFile.title
         cell.detailLabel.text = [
-            zimFile.sizeDescription, zimFile.creationDateDescription, zimFile.articleCountLongDescription
+            zimFile.sizeDescription, zimFile.creationDateShortDescription, zimFile.articleCountLongDescription
         ].compactMap({ $0 }).joined(separator: ", ")
         cell.accessoryType = .disclosureIndicator
         cell.thumbImageView.contentMode = .scaleAspectFit

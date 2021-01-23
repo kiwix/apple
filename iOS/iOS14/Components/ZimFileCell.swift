@@ -49,7 +49,7 @@ struct ZimFileCell: View {
                     Spacer()
                     Label(zimFile.articleCountShortDescription ?? "Unknown", systemImage: "doc.text")
                     Spacer()
-                    Label(zimFile.creationDateDescription ?? "Unknown", systemImage: "calendar")
+                    Label(zimFile.creationDateShortDescription ?? "Unknown", systemImage: "calendar")
                 }.font(.caption).foregroundColor(.secondary)
             }.padding(EdgeInsets(top: 8, leading: 10, bottom: 8, trailing: 10))
         })

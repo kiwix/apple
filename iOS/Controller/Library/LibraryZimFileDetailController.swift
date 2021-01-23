@@ -212,7 +212,7 @@ class LibraryZimFileDetailController: UIViewController, UITableViewDataSource, U
             cell.detailTextLabel?.text = zimFile.sizeDescription
         case .date:
             cell.textLabel?.text = NSLocalizedString("Date", comment: "Book Detail Cell")
-            cell.detailTextLabel?.text = zimFile.creationDateDescription
+            cell.detailTextLabel?.text = zimFile.creationDateShortDescription
         case .hasIndex:
             cell.textLabel?.text = NSLocalizedString("Index", comment: "Book Detail Cell")
             cell.detailTextLabel?.text = {
