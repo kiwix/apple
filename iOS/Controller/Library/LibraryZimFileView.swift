@@ -46,10 +46,16 @@ struct LibraryZimFileView: View {
                     pauseButton
                     cancelButton
                 case .downloadPaused:
-                    Text("Paused")
+                    HStack {
+                        Text("Paused")
+                        if let progress = viewModel.downloadProgress {
+                            Spacer()
+                            Text(progress.localizedAdditionalDescription)
+                        }
+                    }
                     resumeButton
                 case .downloadError:
-                    Text("Paused")
+                    Text("Error")
                     if let errorDescription = zimFile.downloadErrorDescription {
                         Text(errorDescription)
                     }
@@ -104,11 +110,9 @@ struct LibraryZimFileView: View {
     func row(action: String, isDestructive: Bool = false) -> some View {
         HStack {
             Spacer()
-            if isDestructive {
-                Text(action).fontWeight(.medium).foregroundColor(.red)
-            } else {
-                Text(action).fontWeight(.medium)
-            }
+            Text(action)
+                .fontWeight(.medium)
+                .foregroundColor(isDestructive ? .red : nil)
             Spacer()
         }
     }
@@ -144,6 +148,7 @@ private class ViewModel: ObservableObject {
         self.state = zimFile.state
         if let fileSize = zimFile.size.value {
             self.downloadProgress = Progress(totalUnitCount: fileSize)
+            self.downloadProgress?.completedUnitCount = zimFile.downloadTotalBytesWritten
             self.downloadProgress?.kind = .file
             self.downloadProgress?.fileOperationKind = .downloading
             self.downloadProgress?.fileTotalCount = 1
@@ -158,7 +163,7 @@ private class ViewModel: ObservableObject {
                 case .change(let object, let properties):
                     guard let zimFile = object as? ZimFile else { return }
                     for property in properties {
-                        if property.name == "stateRaw" { withAnimation { self?.state = zimFile.state } }
+                        if property.name == "stateRaw" { self?.state = zimFile.state }
                         if property.name == "downloadTotalBytesWritten" {
                             withAnimation {
                                 self?.downloadProgress?.completedUnitCount = zimFile.downloadTotalBytesWritten
