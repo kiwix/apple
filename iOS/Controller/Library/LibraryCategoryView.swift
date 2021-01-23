@@ -37,6 +37,7 @@ struct Language: Comparable, Equatable, Identifiable, Hashable {
 struct LibraryCategoryView: View {
     @ObservedObject private var viewModel: ViewModel
     private let category: ZimFile.Category
+    var zimFileTapped: ((ZimFile) -> Void) = { _ in }
     
     init(category: ZimFile.Category) {
         self.category = category
@@ -59,7 +60,7 @@ struct LibraryCategoryView: View {
     
     func zimFileView(_ zimFile: ZimFile) -> some View {
         Button {
-            
+            zimFileTapped(zimFile)
         } label: {
             HStack {
                 Favicon(zimFile: zimFile)

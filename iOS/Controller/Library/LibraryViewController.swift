@@ -50,17 +50,22 @@ class LibraryViewController: UISplitViewController, UISplitViewControllerDelegat
         dismiss(animated: true)
     }
     
-    func showCategory(_ category: ZimFile.Category) {
-        let controller = UIHostingController(rootView: LibraryCategoryView(category: category))
-        controller.navigationItem.title = category.description
-        controller.navigationItem.largeTitleDisplayMode = .never
-        showDetailViewController(UINavigationController(rootViewController: controller), sender: nil)
-    }
-    
     func splitViewController(_ splitViewController: UISplitViewController,
                              collapseSecondary secondaryViewController: UIViewController,
                              onto primaryViewController: UIViewController) -> Bool {
         true
+    }
+    
+    func showCategory(_ category: ZimFile.Category) {
+        let controller = UIHostingController(rootView: LibraryCategoryView(category: category))
+        controller.navigationItem.title = category.description
+        controller.navigationItem.largeTitleDisplayMode = .never
+        controller.rootView.zimFileTapped = { [weak self] zimFile in self?.showZimFile(zimFile) }
+        showDetailViewController(UINavigationController(rootViewController: controller), sender: nil)
+    }
+    
+    func showZimFile(_ zimFile: ZimFile) {
+        print(zimFile)
     }
 }
 
