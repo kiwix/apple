@@ -57,3 +57,14 @@ struct Favicon: View {
             .overlay(shape.stroke(Color(.white).opacity(0.9), lineWidth: 1))
     }
 }
+
+@available(iOS 13.0, *)
+extension List {
+    func insetGroupedListStyle() -> some View {
+        if #available(iOS 14.0, *) {
+            return AnyView(self.listStyle(InsetGroupedListStyle()))
+        } else {
+            return AnyView(self.listStyle(GroupedListStyle()).environment(\.horizontalSizeClass, .regular))
+        }
+    }
+}
