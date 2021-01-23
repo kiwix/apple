@@ -52,6 +52,7 @@ class ZimFile: Object, Identifiable {
     
     // MARK: -  computed properties
     
+    var shortID: String { String(id.prefix(8)) }
     var state: State {
         get { return State(rawValue: stateRaw) ?? .remote }
         set { stateRaw = newValue.rawValue }

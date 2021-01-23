@@ -245,7 +245,7 @@ class LibraryZimFileDetailController: UIViewController, UITableViewDataSource, U
             cell.detailTextLabel?.text = zimFile.publisher
         case .id:
             cell.textLabel?.text = NSLocalizedString("ID", comment: "Book Detail Cell")
-            cell.detailTextLabel?.text = String(zimFile.id.prefix(8))
+            cell.detailTextLabel?.text = zimFile.shortID
         }
     }
 
