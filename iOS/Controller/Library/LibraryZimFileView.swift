@@ -83,6 +83,9 @@ struct LibraryZimFileView: View {
             }
             Section {
                 row(title: "ID", detail: zimFile.shortID)
+                    .contextMenu(ContextMenu(menuItems: {
+                        Button("Copy") { UIPasteboard.general.string = zimFile.id }
+                    }))
             }
         }
         .insetGroupedListStyle()
