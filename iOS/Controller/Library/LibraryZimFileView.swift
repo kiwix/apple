@@ -14,6 +14,11 @@ import RealmSwift
 struct LibraryZimFileView: View {
     @ObservedObject private var viewModel: ViewModel
     private let zimFile: ZimFile
+    var zimFileDeleted: (() -> Void) = {} {
+        didSet {
+            viewModel.zimFileDeleted = zimFileDeleted
+        }
+    }
     
     init(_ zimFile: ZimFile) {
         self.zimFile = zimFile
@@ -153,6 +158,7 @@ private class ViewModel: ObservableObject {
     @Published var state: ZimFile.State
     @Published var downloadProgress: Progress?
     let hasEnoughDiskSpace: Bool
+    var zimFileDeleted: (() -> Void) = {}
     private var zimFileObserver: NotificationToken?
     
     init(_ zimFile: ZimFile) {
@@ -190,7 +196,7 @@ private class ViewModel: ObservableObject {
                         }
                     }
                 case .deleted:
-                    print("The object was deleted.")
+                    self?.zimFileDeleted()
                 default:
                     break
                 }

@@ -63,6 +63,7 @@ class LibraryViewController: UISplitViewController, UISplitViewControllerDelegat
         let navigationController = UINavigationController(rootViewController: controller)
         controller.rootView.zimFileTapped = { zimFile in
             let controller = UIHostingController(rootView: LibraryZimFileView(zimFile))
+            controller.rootView.zimFileDeleted = { navigationController.popViewController(animated: true) }
             navigationController.pushViewController(controller, animated: true)
         }
         showDetailViewController(navigationController, sender: nil)
