@@ -76,9 +76,14 @@ class ZimFile: Object, Identifiable {
     // MARK: - Descriptions
     
     override var description: String {
-        [self.sizeDescription, self.creationDateDescription, self.articleCountDescription]
+        [self.sizeDescription, self.creationDateDescription, self.articleCountLongDescription]
             .compactMap({ $0 })
             .joined(separator: ", ")
+    }
+    
+    var articleCountDescription: String? {
+        guard let articleCount = self.articleCount.value else { return nil }
+        return ZimFile.countFormatter.string(from: NSNumber(value: articleCount))
     }
     
     var articleCountShortDescription: String? {
@@ -86,7 +91,7 @@ class ZimFile: Object, Identifiable {
         return NumberAbbrevationFormatter.string(from: Int(articleCount))
     }
     
-    var articleCountDescription: String? {
+    var articleCountLongDescription: String? {
         guard let articleCount = self.articleCount.value else { return nil }
         return NumberAbbrevationFormatter.string(from: Int(articleCount)) + (articleCount > 1 ? " articles" : " article")
     }
@@ -98,6 +103,13 @@ class ZimFile: Object, Identifiable {
         formatter.dateStyle = .short
         return formatter.string(from: creationDate)
     }
+    
+    var mediaCountDescription: String? {
+        guard let mediaCount = mediaCount.value else { return nil }
+        return ZimFile.countFormatter.string(from: NSNumber(value: mediaCount))
+    }
+    
+    var languageDescription: String? { Locale.current.localizedString(forLanguageCode: languageCode) }
     
     var sizeDescription: String? {
         guard let size = size.value else { return nil }
@@ -229,4 +241,10 @@ class ZimFile: Object, Identifiable {
             return "\(sign)\(rounded)\(units[exp-1])"
         }
     }
+    
+    private static let countFormatter: NumberFormatter = {
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .decimal
+        return formatter
+    }()
 }

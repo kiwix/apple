@@ -60,12 +60,17 @@ class LibraryViewController: UISplitViewController, UISplitViewControllerDelegat
         let controller = UIHostingController(rootView: LibraryCategoryView(category: category))
         controller.navigationItem.title = category.description
         controller.navigationItem.largeTitleDisplayMode = .never
-        controller.rootView.zimFileTapped = { [weak self] zimFile in self?.showZimFile(zimFile) }
-        showDetailViewController(UINavigationController(rootViewController: controller), sender: nil)
+        let navigationController = UINavigationController(rootViewController: controller)
+        controller.rootView.zimFileTapped = { zimFile in
+            let controller = UIHostingController(rootView: LibraryZimFileView(zimFile))
+            navigationController.pushViewController(controller, animated: true)
+        }
+        showDetailViewController(navigationController, sender: nil)
     }
     
     func showZimFile(_ zimFile: ZimFile) {
-        print(zimFile)
+        let controller = UIHostingController(rootView: LibraryZimFileView(zimFile))
+        showDetailViewController(UINavigationController(rootViewController: controller), sender: nil)
     }
 }
 
