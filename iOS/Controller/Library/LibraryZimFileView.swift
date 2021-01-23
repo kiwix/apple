@@ -6,6 +6,7 @@
 //  Copyright © 2021 Chris Li. All rights reserved.
 //
 
+import Combine
 import SwiftUI
 import RealmSwift
 
@@ -27,16 +28,34 @@ struct LibraryZimFileView: View {
             }
             Section {
                 switch viewModel.state {
-                case ZimFile.State.remote:
-                    Button(action: {}, label: { row(action: "Download")} )
+                case .remote:
+                    Button(action: {
+                        DownloadService.shared.start(zimFileID: zimFile.id, allowsCellularAccess: false)
+                    }, label: { row(action: "Download")} )
+                case .onDevice:
+                    Button(action: {}, label: { row(action: "Delete", isDestructive: true) })
+                case .downloadQueued:
+                    Text("Queued")
+                    cancelButton
+                case .downloadInProgress:
+                    if #available(iOS 14.0, *), let progress = viewModel.downloadProgress {
+                        ProgressView(progress)
+                    } else {
+                        Text("Downloading...")
+                    }
+                    pauseButton
+                    cancelButton
+                case .downloadPaused:
+                    Text("Paused")
+                    resumeButton
+                case .downloadError:
+                    Text("Paused")
+                    if let errorDescription = zimFile.downloadErrorDescription {
+                        Text(errorDescription)
+                    }
                 default:
-                    Button(action: {}, label: { row(action: "Cancel") })
+                    cancelButton
                 }
-                
-//                Button(action: {}, label: { row(action: "Pause") })
-//                Button(action: {}, label: { row(action: "Cancel") })
-//                Button(action: {}, label: { row(action: "Delete", isDestructive: true) })
-//                Button(action: {}, label: { row(action: "Unlink", isDestructive: true) })
             }
             Section {
                 row(title: "Language", detail: zimFile.languageDescription)
@@ -62,6 +81,24 @@ struct LibraryZimFileView: View {
         }
         .insetGroupedListStyle()
         .navigationBarTitle(zimFile.title)
+    }
+    
+    var pauseButton: some View {
+        Button(action: {
+            DownloadService.shared.pause(zimFileID: zimFile.id)
+        }, label: { row(action: "Pause") })
+    }
+    
+    var cancelButton: some View {
+        Button(action: {
+            DownloadService.shared.cancel(zimFileID: zimFile.id)
+        }, label: { row(action: "Cancel") })
+    }
+    
+    var resumeButton: some View {
+        Button(action: {
+            DownloadService.shared.resume(zimFileID: zimFile.id)
+        }, label: { row(action: "Resume") })
     }
     
     func row(action: String, isDestructive: Bool = false) -> some View {
@@ -100,17 +137,32 @@ struct LibraryZimFileView: View {
 @available(iOS 13.0, *)
 private class ViewModel: ObservableObject {
     @Published var state: ZimFile.State
-    private var notificationToken : NotificationToken?
+    @Published var downloadProgress: Progress?
+    private var stateObserver: NotificationToken?
     
     init(_ zimFile: ZimFile) {
         self.state = zimFile.state
-        self.notificationToken = zimFile.observe { change in
+        if let fileSize = zimFile.size.value {
+            self.downloadProgress = Progress(totalUnitCount: fileSize)
+            self.downloadProgress?.kind = .file
+            self.downloadProgress?.fileOperationKind = .downloading
+            self.downloadProgress?.fileTotalCount = 1
+        } else {
+            self.downloadProgress = nil
+        }
+        
+        guard let database = try? Realm(configuration: Realm.defaultConfig),
+              let zimFile = database.object(ofType: ZimFile.self, forPrimaryKey: zimFile.id) else { return }
+        stateObserver = zimFile.observe { [weak self] change in
             switch change {
                 case .change(let object, let properties):
                     guard let zimFile = object as? ZimFile else { return }
                     for property in properties {
-                        if property.name == "stateRaw" {
-                            self.state = zimFile.state
+                        if property.name == "stateRaw" { withAnimation { self?.state = zimFile.state } }
+                        if property.name == "downloadTotalBytesWritten" {
+                            withAnimation {
+                                self?.downloadProgress?.completedUnitCount = zimFile.downloadTotalBytesWritten
+                            }
                         }
                     }
                 case .deleted:
@@ -119,14 +171,5 @@ private class ViewModel: ObservableObject {
                     break
                 }
         }
-    }
-}
-
-@available(iOS 13.0, *)
-struct LibraryZimFileView_Previews: PreviewProvider {
-    static var previews: some View {
-        let zimFile = ZimFile()
-        LibraryZimFileView(zimFile)
-            .previewDevice("iPhone 12 Pro")
     }
 }
