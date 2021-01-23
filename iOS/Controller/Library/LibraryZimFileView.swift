@@ -29,9 +29,16 @@ struct LibraryZimFileView: View {
             Section {
                 switch viewModel.state {
                 case .remote:
-                    Button(action: {
-                        DownloadService.shared.start(zimFileID: zimFile.id, allowsCellularAccess: false)
-                    }, label: { row(action: "Download")} )
+                    if viewModel.hasEnoughDiskSpace {
+                        Button(action: {
+                            DownloadService.shared.start(zimFileID: zimFile.id, allowsCellularAccess: false)
+                        }, label: { row(action: "Download - Wifi Only")} )
+                        Button(action: {
+                            DownloadService.shared.start(zimFileID: zimFile.id, allowsCellularAccess: true)
+                        }, label: { row(action: "Download - Wifi & Cellular")} )
+                    } else {
+                        Button(action: {}, label: { row(action: "Download - Not Enough Space")} ).disabled(true)
+                    }
                 case .onDevice:
                     Button(action: {}, label: { row(action: "Delete", isDestructive: true) })
                 case .downloadQueued:
@@ -145,23 +152,32 @@ struct LibraryZimFileView: View {
 private class ViewModel: ObservableObject {
     @Published var state: ZimFile.State
     @Published var downloadProgress: Progress?
-    private var stateObserver: NotificationToken?
+    let hasEnoughDiskSpace: Bool
+    private var zimFileObserver: NotificationToken?
     
     init(_ zimFile: ZimFile) {
         self.state = zimFile.state
-        if let fileSize = zimFile.size.value {
-            self.downloadProgress = Progress(totalUnitCount: fileSize)
-            self.downloadProgress?.completedUnitCount = zimFile.downloadTotalBytesWritten
-            self.downloadProgress?.kind = .file
-            self.downloadProgress?.fileOperationKind = .downloading
-            self.downloadProgress?.fileTotalCount = 1
-        } else {
-            self.downloadProgress = nil
-        }
+        self.downloadProgress = {
+            guard let fileSize = zimFile.size.value else { return nil }
+            let progress = Progress(totalUnitCount: fileSize)
+            progress.completedUnitCount = zimFile.downloadTotalBytesWritten
+            progress.kind = .file
+            progress.fileOperationKind = .downloading
+            progress.fileTotalCount = 1
+            return progress
+        }()
+        self.hasEnoughDiskSpace = {
+            guard let freeSpace = try? FileManager.default
+                    .urls(for: .documentDirectory, in: .userDomainMask)
+                    .first?.resourceValues(forKeys: [.volumeAvailableCapacityForImportantUsageKey])
+                    .volumeAvailableCapacityForImportantUsage,
+                  let fileSize = zimFile.size.value else { return false}
+            return fileSize <= freeSpace
+        }()
         
         guard let database = try? Realm(configuration: Realm.defaultConfig),
               let zimFile = database.object(ofType: ZimFile.self, forPrimaryKey: zimFile.id) else { return }
-        stateObserver = zimFile.observe { [weak self] change in
+        zimFileObserver = zimFile.observe { [weak self] change in
             switch change {
                 case .change(let object, let properties):
                     guard let zimFile = object as? ZimFile else { return }
