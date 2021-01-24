@@ -14,7 +14,8 @@ import RealmSwift
 @available(iOS 13.0, *)
 struct LibraryZimFileView: View {
     private let zimFile: ZimFile
-    @Default(.downloadUsingCellular) var downloadUsingCellular
+    @Default(.downloadUsingCellular) private var downloadUsingCellular
+    @State private var showingDeleteAlert = false
     @ObservedObject private var viewModel: ViewModel
     var zimFileDeleted: (() -> Void) = {} {
         didSet {
@@ -48,7 +49,7 @@ struct LibraryZimFileView: View {
                     }
                 case .onDevice:
                     ActionButton(title: "Delete", isDestructive: true) {
-                        
+                        showingDeleteAlert = true
                     }
                 case .downloadQueued:
                     Text("Queued")
@@ -110,6 +111,23 @@ struct LibraryZimFileView: View {
         }
         .insetGroupedListStyle()
         .navigationBarTitle(zimFile.title)
+        .alert(isPresented: $showingDeleteAlert) {
+            let message: String = {
+                if LibraryService().isFileInDocumentDirectory(zimFileID: zimFile.id) {
+                    return "The zim file will be deleted from the app's document directory."
+                } else {
+                    return """
+                           The zim file will be unlinked from the app, but not deleted, since it was opened in-place.
+                           """
+                }
+            }()
+            let deleteButton = Alert.Button.destructive(
+                Text("Delete"), action: { ZimFileService.shared.deleteZimFile(zimFileID: zimFile.id) })
+            return Alert(title: Text("Delete Zim File"),
+                         message: Text(message),
+                         primaryButton: deleteButton,
+                         secondaryButton: .cancel())
+        }
     }
     
     var cancelButton: some View {

@@ -61,4 +61,11 @@ extension ZimFileService {
     func getData(zimFileID: String, contentPath: String) -> Data? {
         __getURLContent(zimFileID, contentPath: contentPath)?["data"] as? Data
     }
+    
+    // MARK: - File Management
+    
+    func deleteZimFile(zimFileID: String) {
+        guard let url = getFileURL(zimFileID: zimFileID) else { return }
+        try? FileManager.default.removeItem(at: url)
+    }
 }
