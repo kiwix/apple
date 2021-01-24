@@ -75,6 +75,7 @@ struct LibraryZimFileView: View {
                     ActionButton(title: "Resume") {
                         DownloadService.shared.resume(zimFileID: zimFile.id)
                     }
+                    cancelButton
                 case .downloadError:
                     Text("Error")
                     if let errorDescription = zimFile.downloadErrorDescription {
