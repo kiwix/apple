@@ -8,12 +8,14 @@
 
 import Combine
 import SwiftUI
+import Defaults
 import RealmSwift
 
 @available(iOS 13.0, *)
 struct LibraryZimFileView: View {
-    @ObservedObject private var viewModel: ViewModel
     private let zimFile: ZimFile
+    @Default(.downloadUsingCellular) var downloadUsingCellular
+    @ObservedObject private var viewModel: ViewModel
     var zimFileDeleted: (() -> Void) = {} {
         didSet {
             viewModel.zimFileDeleted = zimFileDeleted
@@ -35,12 +37,10 @@ struct LibraryZimFileView: View {
                 switch viewModel.state {
                 case .remote:
                     if viewModel.hasEnoughDiskSpace {
+                        Toggle("Cellular Data", isOn: $downloadUsingCellular)
                         Button(action: {
-                            DownloadService.shared.start(zimFileID: zimFile.id, allowsCellularAccess: false)
-                        }, label: { row(action: "Download - Wifi Only")} )
-                        Button(action: {
-                            DownloadService.shared.start(zimFileID: zimFile.id, allowsCellularAccess: true)
-                        }, label: { row(action: "Download - Wifi & Cellular")} )
+                            DownloadService.shared.start(zimFileID: zimFile.id, allowsCellularAccess: downloadUsingCellular)
+                        }, label: { row(action: "Download")} )
                     } else {
                         Button(action: {}, label: { row(action: "Download - Not Enough Space")} ).disabled(true)
                     }
