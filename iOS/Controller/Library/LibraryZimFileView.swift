@@ -38,14 +38,18 @@ struct LibraryZimFileView: View {
                 case .remote:
                     if viewModel.hasEnoughDiskSpace {
                         Toggle("Cellular Data", isOn: $downloadUsingCellular)
-                        Button(action: {
-                            DownloadService.shared.start(zimFileID: zimFile.id, allowsCellularAccess: downloadUsingCellular)
-                        }, label: { row(action: "Download")} )
+                        ActionButton(title: "Download") {
+                            DownloadService.shared.start(
+                                zimFileID: zimFile.id, allowsCellularAccess: downloadUsingCellular
+                            )
+                        }
                     } else {
-                        Button(action: {}, label: { row(action: "Download - Not Enough Space")} ).disabled(true)
+                        ActionButton(title: "Download - Not Enough Space").disabled(true)
                     }
                 case .onDevice:
-                    Button(action: {}, label: { row(action: "Delete", isDestructive: true) })
+                    ActionButton(title: "Delete", isDestructive: true) {
+                        
+                    }
                 case .downloadQueued:
                     Text("Queued")
                     cancelButton
@@ -55,7 +59,9 @@ struct LibraryZimFileView: View {
                     } else {
                         Text("Downloading...")
                     }
-                    pauseButton
+                    ActionButton(title: "Pause") {
+                        DownloadService.shared.pause(zimFileID: zimFile.id)
+                    }
                     cancelButton
                 case .downloadPaused:
                     HStack {
@@ -65,7 +71,9 @@ struct LibraryZimFileView: View {
                             Text(progress.localizedAdditionalDescription)
                         }
                     }
-                    resumeButton
+                    ActionButton(title: "Resume") {
+                        DownloadService.shared.resume(zimFileID: zimFile.id)
+                    }
                 case .downloadError:
                     Text("Error")
                     if let errorDescription = zimFile.downloadErrorDescription {
@@ -104,31 +112,9 @@ struct LibraryZimFileView: View {
         .navigationBarTitle(zimFile.title)
     }
     
-    var pauseButton: some View {
-        Button(action: {
-            DownloadService.shared.pause(zimFileID: zimFile.id)
-        }, label: { row(action: "Pause") })
-    }
-    
     var cancelButton: some View {
-        Button(action: {
+        ActionButton(title: "Cancel", isDestructive: true) {
             DownloadService.shared.cancel(zimFileID: zimFile.id)
-        }, label: { row(action: "Cancel") })
-    }
-    
-    var resumeButton: some View {
-        Button(action: {
-            DownloadService.shared.resume(zimFileID: zimFile.id)
-        }, label: { row(action: "Resume") })
-    }
-    
-    func row(action: String, isDestructive: Bool = false) -> some View {
-        HStack {
-            Spacer()
-            Text(action)
-                .fontWeight(.medium)
-                .foregroundColor(isDestructive ? .red : nil)
-            Spacer()
         }
     }
     
@@ -149,6 +135,30 @@ struct LibraryZimFileView: View {
             } else {
                 Image(systemName: "multiply.circle.fill").foregroundColor(.secondary)
             }
+        }
+    }
+    
+    struct ActionButton: View {
+        let title: String
+        let isDestructive: Bool
+        let action: (() -> Void)
+        
+        init(title: String, isDestructive: Bool = false, action: @escaping (() -> Void) = {}) {
+            self.title = title
+            self.isDestructive = isDestructive
+            self.action = action
+        }
+        
+        var body: some View {
+            Button(action: action, label: {
+                HStack {
+                    Spacer()
+                    Text(title)
+                        .fontWeight(.medium)
+                        .foregroundColor(isDestructive ? .red : nil)
+                    Spacer()
+                }
+            })
         }
     }
 }
@@ -177,7 +187,7 @@ private class ViewModel: ObservableObject {
                     .urls(for: .documentDirectory, in: .userDomainMask)
                     .first?.resourceValues(forKeys: [.volumeAvailableCapacityForImportantUsageKey])
                     .volumeAvailableCapacityForImportantUsage,
-                  let fileSize = zimFile.size.value else { return false}
+                  let fileSize = zimFile.size.value else { return false }
             return fileSize <= freeSpace
         }()
         
