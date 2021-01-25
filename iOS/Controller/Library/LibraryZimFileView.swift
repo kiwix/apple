@@ -86,28 +86,27 @@ struct LibraryZimFileView: View {
                 }
             }
             Section {
-                row(title: "Language", detail: zimFile.languageDescription)
-                row(title: "Size", detail: zimFile.sizeDescription)
-                row(title: "Date", detail: zimFile.creationDateDescription)
+                Cell(title: "Language", detail: zimFile.languageDescription)
+                Cell(title: "Size", detail: zimFile.sizeDescription)
+                Cell(title: "Date", detail: zimFile.creationDateDescription)
             }
             Section {
-                row(title: "Pictures", isEnabled: zimFile.hasPictures)
-                row(title: "Videos", isEnabled: zimFile.hasVideos)
-                row(title: "Details", isEnabled: zimFile.hasDetails)
+                CheckmarkCell(title: "Pictures", isChecked: zimFile.hasPictures)
+                CheckmarkCell(title: "Videos", isChecked: zimFile.hasVideos)
+                CheckmarkCell(title: "Details", isChecked: zimFile.hasDetails)
             }
             Section {
-                row(title: "Article Count", detail: zimFile.articleCountDescription)
-                row(title: "Media Count", detail: zimFile.mediaCountDescription)
+                Cell(title: "Article Count", detail: zimFile.articleCountDescription)
+                Cell(title: "Media Count", detail: zimFile.mediaCountDescription)
             }
             Section {
-                row(title: "Creator", detail: zimFile.creator)
-                row(title: "Publisher", detail: zimFile.publisher)
+                Cell(title: "Creator", detail: zimFile.creator)
+                Cell(title: "Publisher", detail: zimFile.publisher)
             }
             Section {
-                row(title: "ID", detail: zimFile.shortID)
-                    .contextMenu(ContextMenu(menuItems: {
-                        Button("Copy") { UIPasteboard.general.string = zimFile.id }
-                    }))
+                Cell(title: "ID", detail: zimFile.shortID).contextMenu(ContextMenu(menuItems: {
+                    Button("Copy") { UIPasteboard.general.string = zimFile.id }
+                }))
             }
         }
         .insetGroupedListStyle()
@@ -137,22 +136,32 @@ struct LibraryZimFileView: View {
         }
     }
     
-    func row(title: String, detail: String?) -> some View {
-        HStack {
-            Text(title)
-            Spacer()
-            Text(detail ?? "Unknown").foregroundColor(.secondary)
+    struct Cell: View {
+        let title: String
+        let detail: String?
+        
+        var body: some View {
+            HStack {
+                Text(title)
+                Spacer()
+                Text(detail ?? "Unknown").foregroundColor(.secondary)
+            }
         }
     }
     
-    func row(title: String, isEnabled: Bool) -> some View {
-        HStack {
-            Text(title)
-            Spacer()
-            if isEnabled{
-                Image(systemName: "checkmark.circle.fill").foregroundColor(.green)
-            } else {
-                Image(systemName: "multiply.circle.fill").foregroundColor(.secondary)
+    struct CheckmarkCell: View {
+        let title: String
+        let isChecked: Bool
+        
+        var body: some View {
+            HStack {
+                Text(title)
+                Spacer()
+                if isChecked{
+                    Image(systemName: "checkmark.circle.fill").foregroundColor(.green)
+                } else {
+                    Image(systemName: "multiply.circle.fill").foregroundColor(.secondary)
+                }
             }
         }
     }
