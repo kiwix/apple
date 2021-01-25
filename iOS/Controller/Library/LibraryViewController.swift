@@ -122,10 +122,12 @@ private struct LibrarySidebarView: View {
 @available(iOS 13.0, *)
 private class ViewModel: ObservableObject {
     @Published private(set) var totalZimFileCount: Int?
+    @Published private(set) var onDeviceZimFiles = [ZimFile]()
     
     private let queue = DispatchQueue(label: "org.kiwix.libraryUI.sidebar", qos: .userInitiated)
     private let database = try? Realm(configuration: Realm.defaultConfig)
     private var totalZimFileCountObserver: AnyCancellable? = nil
+    private var onDeviceZimFilesObserver: AnyCancellable? = nil
     
     init() {
         totalZimFileCountObserver = database?.objects(ZimFile.self)
@@ -136,6 +138,16 @@ private class ViewModel: ObservableObject {
             .receive(on: DispatchQueue.main)
             .catch { _ in Just(0) }
             .sink { [weak self] count in withAnimation { self?.totalZimFileCount = count } }
+        onDeviceZimFilesObserver = database?.objects(ZimFile.self)
+            .filter(NSPredicate(format: "stateRaw == %@", ZimFile.State.onDevice.rawValue))
+            .sorted(byKeyPath: "size", ascending: false)
+            .collectionPublisher
+            .subscribe(on: queue)
+            .freeze()
+            .map { Array($0) }
+            .receive(on: DispatchQueue.main)
+            .catch { _ in Just([]) }
+            .assign(to: \.onDeviceZimFiles, on: self)
     }
     
     func fetchOnlineCatalog() {
