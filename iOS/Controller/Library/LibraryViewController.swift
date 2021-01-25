@@ -78,7 +78,9 @@ class LibraryViewController: UISplitViewController, UISplitViewControllerDelegat
 @available(iOS 13.0, *)
 private struct LibrarySidebarView: View {
     @ObservedObject private var viewModel = ViewModel()
+    
     var categoryTapped: ((ZimFile.Category) -> Void) = { _ in }
+    var zimFileTapped: ((ZimFile) -> Void) = { _ in }
     
     var body: some View {
         List {
@@ -87,6 +89,13 @@ private struct LibrarySidebarView: View {
                     Button("Fetch Online Catalog", action: { viewModel.fetchOnlineCatalog() })
                     Button("From Files App", action: {})
                     Button("From Your Computer", action: {})
+                }
+            }
+            if !viewModel.onDeviceZimFiles.isEmpty {
+                Section(header: Text("On Device")) {
+                    ForEach(viewModel.onDeviceZimFiles) { zimFile in
+                        CompactZimFileCell(zimFile: zimFile, action: zimFileTapped)
+                    }
                 }
             }
             Section(header: Text("Categories")) {

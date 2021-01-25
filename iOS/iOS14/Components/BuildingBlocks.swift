@@ -87,7 +87,7 @@ struct CompactZimFileCell: View {
                         zimFile.creationDateShortDescription,
                         zimFile.articleCountShortDescription,
                     ].compactMap({ $0 }).joined(separator: ", ")).font(.footnote)
-                }
+                }.foregroundColor(.primary)
                 Spacer()
                 DisclosureIndicator()
             }
