@@ -68,3 +68,29 @@ extension List {
         }
     }
 }
+
+@available(iOS 13.0, *)
+struct CompactZimFileCell: View {
+    let zimFile: ZimFile
+    let action: ((ZimFile) -> Void)
+    
+    var body: some View {
+        Button {
+            action(zimFile)
+        } label: {
+            HStack {
+                Favicon(zimFile: zimFile)
+                VStack(alignment: .leading) {
+                    Text(zimFile.title)
+                    Text([
+                        zimFile.sizeDescription,
+                        zimFile.creationDateShortDescription,
+                        zimFile.articleCountShortDescription,
+                    ].compactMap({ $0 }).joined(separator: ", ")).font(.footnote)
+                }
+                Spacer()
+                DisclosureIndicator()
+            }
+        }
+    }
+}
