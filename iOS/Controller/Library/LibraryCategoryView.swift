@@ -50,7 +50,7 @@ struct LibraryCategoryView: View {
                 if let zimFiles = viewModel.zimFiles[language.code] {
                     Section(header: viewModel.languages.count > 1 ? Text(language.name) : nil) {
                         ForEach(zimFiles) { zimFile in
-                            CompactZimFileCell(zimFile: zimFile, action: zimFileTapped)
+                            CompactZimFileCell(zimFile: zimFile, action: zimFileTapped, displayOnDeviceIndicator: true)
                         }
                     }
                 }

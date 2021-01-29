@@ -73,6 +73,13 @@ extension List {
 struct CompactZimFileCell: View {
     let zimFile: ZimFile
     let action: ((ZimFile) -> Void)
+    let displayOnDeviceIndicator: Bool
+    
+    init(zimFile: ZimFile, action: @escaping ((ZimFile) -> Void), displayOnDeviceIndicator: Bool = false) {
+        self.zimFile = zimFile
+        self.action = action
+        self.displayOnDeviceIndicator = displayOnDeviceIndicator
+    }
     
     var body: some View {
         Button {
@@ -82,6 +89,7 @@ struct CompactZimFileCell: View {
                 Favicon(zimFile: zimFile)
                 VStack(alignment: .leading) {
                     Text(zimFile.title)
+                    Spacer(minLength: 2)
                     Text([
                         zimFile.sizeDescription,
                         zimFile.creationDateShortDescription,
@@ -89,6 +97,13 @@ struct CompactZimFileCell: View {
                     ].compactMap({ $0 }).joined(separator: ", ")).font(.footnote)
                 }.foregroundColor(.primary)
                 Spacer()
+                if zimFile.state == .onDevice, displayOnDeviceIndicator {
+                    if UIDevice.current.userInterfaceIdiom == .phone {
+                        Image(systemName:"iphone").foregroundColor(.secondary)
+                    } else if UIDevice.current.userInterfaceIdiom == .pad {
+                        Image(systemName:"ipad").foregroundColor(.secondary)
+                    }
+                }
                 DisclosureIndicator()
             }
         }
