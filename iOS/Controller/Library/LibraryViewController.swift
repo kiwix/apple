@@ -37,6 +37,7 @@ class LibraryViewController: UISplitViewController, UISplitViewControllerDelegat
         viewControllers = [sidebarNavigationViewController]
         delegate = self
         
+        sidebarViewController.rootView.zimFileTapped = { [weak self] zimFile in self?.showZimFile(zimFile) }
         sidebarViewController.rootView.categoryTapped = { [weak self] category in self?.showCategory(category) }
         sidebarViewController.navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .done, target: self, action: #selector(dismissController))
         showCategory(.wikipedia)
@@ -71,6 +72,8 @@ class LibraryViewController: UISplitViewController, UISplitViewControllerDelegat
     
     func showZimFile(_ zimFile: ZimFile) {
         let controller = UIHostingController(rootView: LibraryZimFileView(zimFile))
+        controller.navigationItem.title = zimFile.title
+        controller.navigationItem.largeTitleDisplayMode = .never
         showDetailViewController(UINavigationController(rootViewController: controller), sender: nil)
     }
 }
