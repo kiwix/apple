@@ -74,10 +74,10 @@ extension List {
 
 @available(iOS 13.0, *)
 struct CompactZimFileView: View {
-    let metadata: ZimFileMetadata
+    let metadata: ZimFile.Metadata
     let displayOnDeviceIndicator: Bool
     
-    init(_ metadata: ZimFileMetadata, displayOnDeviceIndicator: Bool = false) {
+    init(_ metadata: ZimFile.Metadata, displayOnDeviceIndicator: Bool = false) {
         self.metadata = metadata
         self.displayOnDeviceIndicator = displayOnDeviceIndicator
     }

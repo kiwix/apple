@@ -37,7 +37,7 @@ struct Language: Comparable, Equatable, Identifiable, Hashable {
 struct LibraryCategoryView: View {
     @ObservedObject private var viewModel: ViewModel
     private let category: ZimFile.Category
-    var zimFileTapped: ((ZimFileMetadata) -> Void) = { _ in }
+    var zimFileTapped: ((ZimFile.Metadata) -> Void) = { _ in }
     
     init(category: ZimFile.Category) {
         self.category = category
@@ -64,7 +64,7 @@ struct LibraryCategoryView: View {
 @available(iOS 13.0, *)
 private class ViewModel: ObservableObject {
     @Published private(set) var languages = [Language]()
-    @Published private(set) var zimFiles = [String: [ZimFileMetadata]]()
+    @Published private(set) var zimFiles = [String: [ZimFile.Metadata]]()
     
     private let category: ZimFile.Category
     private var languageObserver: Defaults.Observation?
@@ -96,9 +96,9 @@ private class ViewModel: ObservableObject {
             .subscribe(on: queue)
             .freeze()
             .map { (results: Results<ZimFile>) in
-                var zimFiles = [String: [ZimFileMetadata]]()
+                var zimFiles = [String: [ZimFile.Metadata]]()
                 results.forEach { zimFile in
-                    zimFiles[zimFile.languageCode, default: [ZimFileMetadata]()].append(ZimFileMetadata(zimFile))
+                    zimFiles[zimFile.languageCode, default: [ZimFile.Metadata]()].append(ZimFile.Metadata(zimFile))
                 }
                 return zimFiles
             }

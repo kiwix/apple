@@ -79,7 +79,7 @@ class LibraryViewController: UISplitViewController, UISplitViewControllerDelegat
         showDetailViewController(navigationController, sender: nil)
     }
     
-    func showZimFile(_ metadata : ZimFileMetadata) {
+    func showZimFile(_ metadata : ZimFile.Metadata) {
         let controller = UIHostingController(rootView: LibraryZimFileView(id: metadata.id))
         controller.navigationItem.title = metadata.title
         controller.navigationItem.largeTitleDisplayMode = .never
@@ -92,7 +92,7 @@ private struct LibrarySidebarView: View {
     @ObservedObject private var viewModel = ViewModel()
     
     var categoryTapped: ((ZimFile.Category) -> Void) = { _ in }
-    var zimFileTapped: ((ZimFileMetadata) -> Void) = { _ in }
+    var zimFileTapped: ((ZimFile.Metadata) -> Void) = { _ in }
     
     var body: some View {
         List {
@@ -151,8 +151,8 @@ private struct LibrarySidebarView: View {
 @available(iOS 13.0, *)
 private class ViewModel: ObservableObject {
     @Published private(set) var totalZimFileCount: Int?
-    @Published private(set) var onDeviceZimFiles = [ZimFileMetadata]()
-    @Published private(set) var downloadZimFiles = [ZimFileMetadata]()
+    @Published private(set) var onDeviceZimFiles = [ZimFile.Metadata]()
+    @Published private(set) var downloadZimFiles = [ZimFile.Metadata]()
     
     private let queue = DispatchQueue(label: "org.kiwix.libraryUI.sidebar", qos: .userInitiated)
     private let database = try? Realm(configuration: Realm.defaultConfig)
@@ -175,7 +175,7 @@ private class ViewModel: ObservableObject {
             .collectionPublisher
             .subscribe(on: queue)
             .freeze()
-            .map { $0.map { ZimFileMetadata($0) } }
+            .map { $0.map { ZimFile.Metadata($0) } }
             .receive(on: DispatchQueue.main)
             .catch { _ in Just([]) }
             .sink { [weak self] zimFiles in withAnimation { self?.onDeviceZimFiles = zimFiles } }
@@ -185,7 +185,7 @@ private class ViewModel: ObservableObject {
             .collectionPublisher
             .subscribe(on: queue)
             .freeze()
-            .map { $0.map { ZimFileMetadata($0) } }
+            .map { $0.map { ZimFile.Metadata($0) } }
             .receive(on: DispatchQueue.main)
             .catch { _ in Just([]) }
             .sink { [weak self] zimFiles in withAnimation { self?.downloadZimFiles = zimFiles } }
