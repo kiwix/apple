@@ -28,7 +28,7 @@ struct ZimFileCell: View {
         }, label: {
             VStack(alignment: .leading, spacing: 6) {
                 HStack(alignment: .center, spacing: 8) {
-                    Favicon(zimFile: zimFile)
+                    Favicon(data: zimFile.faviconData)
                     VStack(alignment: .leading, spacing: 2) {
                         Text(zimFile.title).font(.headline).lineLimit(1)
                         if zimFile.fileDescription.count > 0 {

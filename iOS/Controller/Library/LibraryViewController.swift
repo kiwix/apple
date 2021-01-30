@@ -106,14 +106,18 @@ private struct LibrarySidebarView: View {
             if !viewModel.onDeviceZimFiles.isEmpty {
                 Section(header: Text("On Device")) {
                     ForEach(viewModel.onDeviceZimFiles) { zimFile in
-                        CompactZimFileCell(zimFile: zimFile, action: zimFileTapped)
+                        Button(action: { zimFileTapped(zimFile) }, label: {
+                            CompactZimFileCell(zimFile: zimFile)
+                        })
                     }
                 }
             }
             if !viewModel.downloadZimFiles.isEmpty {
                 Section(header: Text("Download")) {
                     ForEach(viewModel.downloadZimFiles) { zimFile in
-                        CompactZimFileCell(zimFile: zimFile, action: zimFileTapped)
+                        Button(action: { zimFileTapped(zimFile) }, label: {
+                            CompactZimFileCell(zimFile: zimFile)
+                        })
                     }
                 }
             }

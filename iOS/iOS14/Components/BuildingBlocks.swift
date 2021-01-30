@@ -39,24 +39,25 @@ struct DisclosureIndicator: View {
 
 @available(iOS 13.0, *)
 struct Favicon: View {
-    let zimFile: ZimFile?
+    private let image: Image
+    private let outline = RoundedRectangle(cornerRadius: 4, style: .continuous)
+    
+    init (data: Data?) {
+        if let data = data, let image = UIImage(data: data) {
+            self.image = Image(uiImage: image)
+        } else {
+            self.image = Image("GenericZimFile")
+        }
+    }
     
     var body: some View {
-        let image: Image = {
-            if let data = zimFile?.faviconData, let image = UIImage(data: data) {
-                return Image(uiImage: image)
-            } else {
-                return Image("GenericZimFile")
-            }
-        }()
-        let shape = RoundedRectangle(cornerRadius: 4, style: .continuous)
-        return image
+        image
             .renderingMode(.original)
             .resizable()
             .frame(width: 24, height: 24)
             .background(Color(.white))
-            .clipShape(shape)
-            .overlay(shape.stroke(Color(.white).opacity(0.9), lineWidth: 1))
+            .clipShape(outline)
+            .overlay(outline.stroke(Color(.white).opacity(0.9), lineWidth: 1))
     }
 }
 
@@ -74,40 +75,34 @@ extension List {
 @available(iOS 13.0, *)
 struct CompactZimFileCell: View {
     let zimFile: ZimFile
-    let action: ((ZimFile) -> Void)
     let displayOnDeviceIndicator: Bool
     
-    init(zimFile: ZimFile, action: @escaping ((ZimFile) -> Void), displayOnDeviceIndicator: Bool = false) {
+    init(zimFile: ZimFile, displayOnDeviceIndicator: Bool = false) {
         self.zimFile = zimFile
-        self.action = action
         self.displayOnDeviceIndicator = displayOnDeviceIndicator
     }
     
     var body: some View {
-        Button {
-            action(zimFile)
-        } label: {
-            HStack {
-                Favicon(zimFile: zimFile)
-                VStack(alignment: .leading) {
-                    Text(zimFile.title)
-                    Spacer(minLength: 2)
-                    Text([
-                        zimFile.sizeDescription,
-                        zimFile.creationDateShortDescription,
-                        zimFile.articleCountShortDescription,
-                    ].compactMap({ $0 }).joined(separator: ", ")).font(.footnote)
-                }.foregroundColor(.primary)
-                Spacer()
-                if zimFile.state == .onDevice, displayOnDeviceIndicator {
-                    if UIDevice.current.userInterfaceIdiom == .phone {
-                        Image(systemName:"iphone").foregroundColor(.secondary)
-                    } else if UIDevice.current.userInterfaceIdiom == .pad {
-                        Image(systemName:"ipad").foregroundColor(.secondary)
-                    }
+        HStack {
+            Favicon(data: zimFile.faviconData)
+            VStack(alignment: .leading) {
+                Text(zimFile.title)
+                Spacer(minLength: 2)
+                Text([
+                    zimFile.sizeDescription,
+                    zimFile.creationDateShortDescription,
+                    zimFile.articleCountShortDescription,
+                ].compactMap({ $0 }).joined(separator: ", ")).font(.footnote)
+            }.foregroundColor(.primary)
+            Spacer()
+            if zimFile.state == .onDevice, displayOnDeviceIndicator {
+                if UIDevice.current.userInterfaceIdiom == .phone {
+                    Image(systemName:"iphone").foregroundColor(.secondary)
+                } else if UIDevice.current.userInterfaceIdiom == .pad {
+                    Image(systemName:"ipad").foregroundColor(.secondary)
                 }
-                DisclosureIndicator()
             }
+            DisclosureIndicator()
         }
     }
 }

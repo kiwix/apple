@@ -27,7 +27,6 @@
 		973B2A5D254609FD00093661 /* Modifiers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 973B2A5C254609FD00093661 /* Modifiers.swift */; };
 		973B2A642546501200093661 /* ZimFilesViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 973B2A632546501200093661 /* ZimFilesViewModel.swift */; };
 		973B8012239066D0008CC8CE /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 973B8011239066D0008CC8CE /* SceneDelegate.swift */; };
-		9742D7182545E1360046D88C /* SearchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9742D7172545E1360046D88C /* SearchView.swift */; };
 		974FD5CF23405C3700FFDEEC /* WindowControllers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 974FD5CE23405C3700FFDEEC /* WindowControllers.swift */; };
 		974FFE5B2352704600F6BF28 /* ZimFileManagerController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 974FFE5A2352704600F6BF28 /* ZimFileManagerController.swift */; };
 		974FFE612352744800F6BF28 /* WebKitWebViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 974FFE602352744800F6BF28 /* WebKitWebViewController.swift */; };
@@ -143,7 +142,6 @@
 		97CE42482493244D00B334E9 /* Parser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 970EC3A023BCEC84008DCA27 /* Parser.swift */; };
 		97CE424A24957C3500B334E9 /* LibraryService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9779A59C2456793500F6F6FF /* LibraryService.swift */; };
 		97D19F072546FF3700910CAE /* BuildingBlocks.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97D19F062546FF3700910CAE /* BuildingBlocks.swift */; };
-		97D7FB5C253CF97400E8ADDF /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97D7FB5B253CF97400E8ADDF /* RootView.swift */; };
 		97DBCF9D203CA254004EE274 /* SettingExternalLinkController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97DBCF9C203CA254004EE274 /* SettingExternalLinkController.swift */; };
 		97E02DE424B00C82008E278D /* libkiwix.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 97E02DE324B00C82008E278D /* libkiwix.xcframework */; };
 		97E173D425733D11002CAD17 /* RootViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97E173D325733D10002CAD17 /* RootViewController.swift */; };
@@ -1087,7 +1085,6 @@
 				97B1046F1F8FC63C00488444 /* LibraryMasterController.swift in Sources */,
 				978FA76825851B4D00666E1B /* HomeView.swift in Sources */,
 				972B6662200808D6003F5365 /* WelcomeController.swift in Sources */,
-				9742D7182545E1360046D88C /* SearchView.swift in Sources */,
 				97252108200F9D6A00B60A80 /* SettingController.swift in Sources */,
 				973B2A5D254609FD00093661 /* Modifiers.swift in Sources */,
 				9779A5B82456793600F6F6FF /* LibraryOperationBase.swift in Sources */,
@@ -1098,7 +1095,6 @@
 				970EC3A123BCEC84008DCA27 /* Parser.swift in Sources */,
 				97974368257BF37E00D30F03 /* Alerts.swift in Sources */,
 				9779A73D2456796B00F6F6FF /* DirectoryMonitor.swift in Sources */,
-				97D7FB5C253CF97400E8ADDF /* RootView.swift in Sources */,
 				973B2A642546501200093661 /* ZimFilesViewModel.swift in Sources */,
 				97A2AE2225866D9200DEF81D /* ButtonProvider.swift in Sources */,
 				9779A5B22456793600F6F6FF /* LibraryService.swift in Sources */,
