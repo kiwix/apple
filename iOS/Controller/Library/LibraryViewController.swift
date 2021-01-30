@@ -179,7 +179,7 @@ private class ViewModel: ObservableObject {
             .receive(on: DispatchQueue.main)
             .catch { _ in Just([]) }
             .sink { [weak self] metadata in
-                withAnimation(self?.onDeviceZimFiles == nil ? nil : Animation.default) {
+                withAnimation(self?.onDeviceZimFiles == nil ? nil : .default) {
                     self?.onDeviceZimFiles = metadata
                 }
             }
@@ -193,7 +193,7 @@ private class ViewModel: ObservableObject {
             .receive(on: DispatchQueue.main)
             .catch { _ in Just([]) }
             .sink { [weak self] metadata in
-                withAnimation(self?.downloadZimFiles == nil ? nil : Animation.default) {
+                withAnimation(self?.downloadZimFiles == nil ? nil : .default) {
                     self?.downloadZimFiles = metadata
                 }
             }

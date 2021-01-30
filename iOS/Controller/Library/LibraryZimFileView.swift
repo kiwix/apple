@@ -54,7 +54,7 @@ struct LibraryZimFileView: View {
                         showingDeleteAlert = true
                     }
                 case .downloadQueued:
-                    Text("Queued")
+                    Text(viewModel.state.description)
                     cancelButton
                 case .downloadInProgress:
                     if #available(iOS 14.0, *), let progress = viewModel.downloadProgress {
@@ -68,7 +68,7 @@ struct LibraryZimFileView: View {
                     cancelButton
                 case .downloadPaused:
                     HStack {
-                        Text("Paused")
+                        Text(viewModel.state.description)
                         if let progress = viewModel.downloadProgress {
                             Spacer()
                             Text(progress.localizedAdditionalDescription)
@@ -79,7 +79,7 @@ struct LibraryZimFileView: View {
                     }
                     cancelButton
                 case .downloadError:
-                    Text("Error")
+                    Text(viewModel.state.description)
                     if let errorDescription = zimFile.downloadErrorDescription {
                         Text(errorDescription)
                     }

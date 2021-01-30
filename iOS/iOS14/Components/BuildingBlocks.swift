@@ -124,7 +124,10 @@ struct ZimFileView: View {
             self.id = zimFile.id
             self.title = zimFile.title
             if withDownloadInfo {
-                self.detail = zimFile.downloadProgress?.localizedAdditionalDescription ?? ""
+                self.detail = [
+                    zimFile.state.description,
+                    zimFile.downloadProgress?.localizedAdditionalDescription ?? "",
+                ].joined(separator: ", ")
             } else {
                 self.detail = [
                     zimFile.sizeDescription,
