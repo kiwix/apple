@@ -467,7 +467,7 @@
 			path = ViewModel;
 			sourceTree = "<group>";
 		};
-		975D916025C5F29300AC8081 /* Lagacy */ = {
+		975D916125C5F2CF00AC8081 /* Legacy */ = {
 			isa = PBXGroup;
 			children = (
 				97A36C561F8D5FCD0079B452 /* LibraryController.swift */,
@@ -478,7 +478,7 @@
 				97CA4A7120A21D24008CEA6D /* LibraryLanguageController.swift */,
 				9779A7E924567AA600F6F6FF /* LibrarySetting.swift */,
 			);
-			path = Lagacy;
+			path = Legacy;
 			sourceTree = "<group>";
 		};
 		975FDAD81F6082DA00A10E8C /* iOS */ = {
@@ -675,7 +675,7 @@
 				97C3F9EB25B3A1BF00E1E105 /* LibraryViewController.swift */,
 				978A315725B49149008A03FA /* LibraryCategoryView.swift */,
 				97B020F525BC784C0024F743 /* LibraryZimFileView.swift */,
-				975D916025C5F29300AC8081 /* Lagacy */,
+				975D916125C5F2CF00AC8081 /* Legacy */,
 			);
 			path = Library;
 			sourceTree = "<group>";
