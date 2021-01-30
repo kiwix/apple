@@ -153,6 +153,7 @@ private class ViewModel: ObservableObject {
     @Published private(set) var totalZimFileCount: Int?
     @Published private(set) var onDeviceZimFiles: [ZimFile.Metadata]?
     @Published private(set) var downloadZimFiles: [ZimFile.Metadata]?
+    @Published private(set) var downloadProgresses = [String: Progress]()
     
     private let queue = DispatchQueue(label: "org.kiwix.libraryUI.sidebar", qos: .userInitiated)
     private let database = try? Realm(configuration: Realm.defaultConfig)
@@ -178,11 +179,11 @@ private class ViewModel: ObservableObject {
             .map { $0.map { ZimFile.Metadata($0) } }
             .receive(on: DispatchQueue.main)
             .catch { _ in Just([]) }
-            .sink { [weak self] zimFiles in
+            .sink { [weak self] metadata in
                 if self?.onDeviceZimFiles == nil {
-                    self?.onDeviceZimFiles = zimFiles
+                    self?.onDeviceZimFiles = metadata
                 } else {
-                    withAnimation { self?.onDeviceZimFiles = zimFiles }
+                    withAnimation { self?.onDeviceZimFiles = metadata }
                 }
             }
         downloadZimFilesObserver = database?.objects(ZimFile.self)
@@ -191,14 +192,21 @@ private class ViewModel: ObservableObject {
             .collectionPublisher
             .subscribe(on: queue)
             .freeze()
-            .map { $0.map { ZimFile.Metadata($0) } }
+            .map { ( $0.map { ZimFile.Metadata($0) }, Array($0) ) }
             .receive(on: DispatchQueue.main)
-            .catch { _ in Just([]) }
-            .sink { [weak self] zimFiles in
+            .catch { _ in Just(([], [])) }
+            .sink { [weak self] (metadata: [ZimFile.Metadata], zimFiles: [ZimFile]) in
                 if self?.downloadZimFiles == nil {
-                    self?.downloadZimFiles = zimFiles
+                    self?.downloadZimFiles = metadata
                 } else {
-                    withAnimation { self?.downloadZimFiles = zimFiles }
+                    withAnimation { self?.downloadZimFiles = metadata }
+                }
+                zimFiles.forEach { zimFile in
+                    if let progress = self?.downloadProgresses[zimFile.id] {
+                        progress.completedUnitCount = zimFile.downloadTotalBytesWritten
+                    } else {
+                        self?.downloadProgresses[zimFile.id] = zimFile.downloadProgress
+                    }
                 }
             }
     }
