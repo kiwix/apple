@@ -106,18 +106,14 @@ private struct LibrarySidebarView: View {
             if !viewModel.onDeviceZimFiles.isEmpty {
                 Section(header: Text("On Device")) {
                     ForEach(viewModel.onDeviceZimFiles) { zimFile in
-                        Button(action: { zimFileTapped(zimFile) }, label: {
-                            CompactZimFileCell(zimFile: zimFile)
-                        })
+                        Button(action: { zimFileTapped(zimFile.zimFile) }, label: { CompactZimFileView(zimFile) })
                     }
                 }
             }
             if !viewModel.downloadZimFiles.isEmpty {
                 Section(header: Text("Download")) {
                     ForEach(viewModel.downloadZimFiles) { zimFile in
-                        Button(action: { zimFileTapped(zimFile) }, label: {
-                            CompactZimFileCell(zimFile: zimFile)
-                        })
+                        Button(action: { zimFileTapped(zimFile.zimFile) }, label: { CompactZimFileView(zimFile) })
                     }
                 }
             }
@@ -155,8 +151,8 @@ private struct LibrarySidebarView: View {
 @available(iOS 13.0, *)
 private class ViewModel: ObservableObject {
     @Published private(set) var totalZimFileCount: Int?
-    @Published private(set) var onDeviceZimFiles = [ZimFile]()
-    @Published private(set) var downloadZimFiles = [ZimFile]()
+    @Published private(set) var onDeviceZimFiles = [ZimFileMetadata]()
+    @Published private(set) var downloadZimFiles = [ZimFileMetadata]()
     
     private let queue = DispatchQueue(label: "org.kiwix.libraryUI.sidebar", qos: .userInitiated)
     private let database = try? Realm(configuration: Realm.defaultConfig)
@@ -179,7 +175,7 @@ private class ViewModel: ObservableObject {
             .collectionPublisher
             .subscribe(on: queue)
             .freeze()
-            .map { Array($0) }
+            .map { $0.map { ZimFileMetadata($0) } }
             .receive(on: DispatchQueue.main)
             .catch { _ in Just([]) }
             .sink { [weak self] zimFiles in withAnimation { self?.onDeviceZimFiles = zimFiles } }
@@ -189,7 +185,7 @@ private class ViewModel: ObservableObject {
             .collectionPublisher
             .subscribe(on: queue)
             .freeze()
-            .map { Array($0) }
+            .map { $0.map { ZimFileMetadata($0) } }
             .receive(on: DispatchQueue.main)
             .catch { _ in Just([]) }
             .sink { [weak self] zimFiles in withAnimation { self?.downloadZimFiles = zimFiles } }

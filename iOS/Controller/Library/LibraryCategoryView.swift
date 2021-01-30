@@ -50,8 +50,8 @@ struct LibraryCategoryView: View {
                 if let zimFiles = viewModel.zimFiles[language.code] {
                     Section(header: viewModel.languages.count > 1 ? Text(language.name) : nil) {
                         ForEach(zimFiles) { zimFile in
-                            Button(action: { zimFileTapped(zimFile) }, label: {
-                                CompactZimFileCell(zimFile: zimFile, displayOnDeviceIndicator: true)
+                            Button(action: { zimFileTapped(zimFile.zimFile) }, label: {
+                                CompactZimFileView(zimFile, displayOnDeviceIndicator: true)
                             })
                         }
                     }
@@ -64,7 +64,7 @@ struct LibraryCategoryView: View {
 @available(iOS 13.0, *)
 private class ViewModel: ObservableObject {
     @Published private(set) var languages = [Language]()
-    @Published private(set) var zimFiles = [String: [ZimFile]]()
+    @Published private(set) var zimFiles = [String: [ZimFileMetadata]]()
     
     private let category: ZimFile.Category
     private var languageObserver: Defaults.Observation?
@@ -96,9 +96,9 @@ private class ViewModel: ObservableObject {
             .subscribe(on: queue)
             .freeze()
             .map { (results: Results<ZimFile>) in
-                var zimFiles = [String: [ZimFile]]()
+                var zimFiles = [String: [ZimFileMetadata]]()
                 results.forEach { zimFile in
-                    zimFiles[zimFile.languageCode, default: [ZimFile]()].append(zimFile)
+                    zimFiles[zimFile.languageCode, default: [ZimFileMetadata]()].append(ZimFileMetadata(zimFile))
                 }
                 return zimFiles
             }
