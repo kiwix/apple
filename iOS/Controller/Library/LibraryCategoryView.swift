@@ -37,7 +37,7 @@ struct Language: Comparable, Equatable, Identifiable, Hashable {
 struct LibraryCategoryView: View {
     @ObservedObject private var viewModel: ViewModel
     private let category: ZimFile.Category
-    var zimFileTapped: ((ZimFile) -> Void) = { _ in }
+    var zimFileTapped: ((ZimFileMetadata) -> Void) = { _ in }
     
     init(category: ZimFile.Category) {
         self.category = category
@@ -49,9 +49,9 @@ struct LibraryCategoryView: View {
             ForEach(viewModel.languages) { language in
                 if let zimFiles = viewModel.zimFiles[language.code] {
                     Section(header: viewModel.languages.count > 1 ? Text(language.name) : nil) {
-                        ForEach(zimFiles) { zimFile in
-                            Button(action: { zimFileTapped(zimFile.zimFile) }, label: {
-                                CompactZimFileView(zimFile, displayOnDeviceIndicator: true)
+                        ForEach(zimFiles) { metadata in
+                            Button(action: { zimFileTapped(metadata) }, label: {
+                                CompactZimFileView(metadata, displayOnDeviceIndicator: true)
                             })
                         }
                     }

@@ -37,7 +37,7 @@ class LibraryViewController: UISplitViewController, UISplitViewControllerDelegat
         viewControllers = [sidebarNavigationViewController]
         delegate = self
         
-        sidebarViewController.rootView.zimFileTapped = { [weak self] zimFile in self?.showZimFile(zimFile) }
+        sidebarViewController.rootView.zimFileTapped = { [weak self] metadata in self?.showZimFile(metadata) }
         sidebarViewController.rootView.categoryTapped = { [weak self] category in self?.showCategory(category) }
         sidebarViewController.navigationItem.leftBarButtonItem = UIBarButtonItem(
             barButtonSystemItem: .done, target: self, action: #selector(dismissController))
@@ -71,17 +71,17 @@ class LibraryViewController: UISplitViewController, UISplitViewControllerDelegat
         controller.navigationItem.title = category.description
         controller.navigationItem.largeTitleDisplayMode = .never
         let navigationController = UINavigationController(rootViewController: controller)
-        controller.rootView.zimFileTapped = { zimFile in
-            let controller = UIHostingController(rootView: LibraryZimFileView(zimFile))
-            controller.rootView.zimFileDeleted = { navigationController.popViewController(animated: true) }
+        controller.rootView.zimFileTapped = { metadata in
+            let controller = UIHostingController(rootView: LibraryZimFileView(id: metadata.id))
+            controller.rootView?.zimFileDeleted = { navigationController.popViewController(animated: true) }
             navigationController.pushViewController(controller, animated: true)
         }
         showDetailViewController(navigationController, sender: nil)
     }
     
-    func showZimFile(_ zimFile: ZimFile) {
-        let controller = UIHostingController(rootView: LibraryZimFileView(zimFile))
-        controller.navigationItem.title = zimFile.title
+    func showZimFile(_ metadata : ZimFileMetadata) {
+        let controller = UIHostingController(rootView: LibraryZimFileView(id: metadata.id))
+        controller.navigationItem.title = metadata.title
         controller.navigationItem.largeTitleDisplayMode = .never
         showDetailViewController(UINavigationController(rootViewController: controller), sender: nil)
     }
@@ -92,7 +92,7 @@ private struct LibrarySidebarView: View {
     @ObservedObject private var viewModel = ViewModel()
     
     var categoryTapped: ((ZimFile.Category) -> Void) = { _ in }
-    var zimFileTapped: ((ZimFile) -> Void) = { _ in }
+    var zimFileTapped: ((ZimFileMetadata) -> Void) = { _ in }
     
     var body: some View {
         List {
@@ -105,15 +105,15 @@ private struct LibrarySidebarView: View {
             }
             if !viewModel.onDeviceZimFiles.isEmpty {
                 Section(header: Text("On Device")) {
-                    ForEach(viewModel.onDeviceZimFiles) { zimFile in
-                        Button(action: { zimFileTapped(zimFile.zimFile) }, label: { CompactZimFileView(zimFile) })
+                    ForEach(viewModel.onDeviceZimFiles) { metadata in
+                        Button(action: { zimFileTapped(metadata) }, label: { CompactZimFileView(metadata) })
                     }
                 }
             }
             if !viewModel.downloadZimFiles.isEmpty {
                 Section(header: Text("Download")) {
-                    ForEach(viewModel.downloadZimFiles) { zimFile in
-                        Button(action: { zimFileTapped(zimFile.zimFile) }, label: { CompactZimFileView(zimFile) })
+                    ForEach(viewModel.downloadZimFiles) { metadata in
+                        Button(action: { zimFileTapped(metadata) }, label: { CompactZimFileView(metadata) })
                     }
                 }
             }

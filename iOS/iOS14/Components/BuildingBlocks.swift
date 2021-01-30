@@ -102,25 +102,3 @@ struct CompactZimFileView: View {
         }
     }
 }
-
-struct ZimFileMetadata: Identifiable {
-    let id: String
-    let title: String
-    let detail: String
-    let state: ZimFile.State
-    let faviconData: Data?
-    let zimFile: ZimFile
-    
-    init(_ zimFile: ZimFile) {
-        self.id = zimFile.id
-        self.title = zimFile.title
-        self.detail = [
-            zimFile.sizeDescription,
-            zimFile.creationDateShortDescription,
-            zimFile.articleCountShortDescription,
-        ].compactMap({ $0 }).joined(separator: ", ")
-        self.state = zimFile.state
-        self.faviconData = zimFile.faviconData
-        self.zimFile = zimFile
-    }
-}

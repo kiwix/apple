@@ -23,7 +23,9 @@ struct LibraryZimFileView: View {
         }
     }
     
-    init(_ zimFile: ZimFile) {
+    init?(id: String) {
+        guard let database = try? Realm(configuration: Realm.defaultConfig),
+              let zimFile = database.object(ofType: ZimFile.self, forPrimaryKey: id) else { return nil }
         self.zimFile = zimFile
         self.viewModel = ViewModel(zimFile)
     }
@@ -219,8 +221,6 @@ private class ViewModel: ObservableObject {
             return fileSize <= freeSpace
         }()
         
-        guard let database = try? Realm(configuration: Realm.defaultConfig),
-              let zimFile = database.object(ofType: ZimFile.self, forPrimaryKey: zimFile.id) else { return }
         zimFileObserver = zimFile.observe { [weak self] change in
             switch change {
                 case .change(let object, let properties):

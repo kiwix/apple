@@ -257,3 +257,23 @@ class ZimFile: Object, Identifiable {
         return formatter
     }()
 }
+
+struct ZimFileMetadata: Identifiable {
+    let id: String
+    let title: String
+    let detail: String
+    let state: ZimFile.State
+    let faviconData: Data?
+    
+    init(_ zimFile: ZimFile) {
+        self.id = zimFile.id
+        self.title = zimFile.title
+        self.detail = [
+            zimFile.sizeDescription,
+            zimFile.creationDateShortDescription,
+            zimFile.articleCountShortDescription,
+        ].compactMap({ $0 }).joined(separator: ", ")
+        self.state = zimFile.state
+        self.faviconData = zimFile.faviconData
+    }
+}
