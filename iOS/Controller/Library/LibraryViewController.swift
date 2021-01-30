@@ -110,6 +110,13 @@ private struct LibrarySidebarView: View {
                     }
                 }
             }
+            if !viewModel.downloadZimFiles.isEmpty {
+                Section(header: Text("Download")) {
+                    ForEach(viewModel.downloadZimFiles) { zimFile in
+                        CompactZimFileCell(zimFile: zimFile, action: zimFileTapped)
+                    }
+                }
+            }
             Section(header: Text("Categories")) {
                 ForEach(ZimFile.Category.allCases) { category in
                     categoryView(category)
@@ -145,11 +152,13 @@ private struct LibrarySidebarView: View {
 private class ViewModel: ObservableObject {
     @Published private(set) var totalZimFileCount: Int?
     @Published private(set) var onDeviceZimFiles = [ZimFile]()
+    @Published private(set) var downloadZimFiles = [ZimFile]()
     
     private let queue = DispatchQueue(label: "org.kiwix.libraryUI.sidebar", qos: .userInitiated)
     private let database = try? Realm(configuration: Realm.defaultConfig)
     private var totalZimFileCountObserver: AnyCancellable? = nil
     private var onDeviceZimFilesObserver: AnyCancellable? = nil
+    private var downloadZimFilesObserver: AnyCancellable? = nil
     
     init() {
         totalZimFileCountObserver = database?.objects(ZimFile.self)
@@ -169,7 +178,17 @@ private class ViewModel: ObservableObject {
             .map { Array($0) }
             .receive(on: DispatchQueue.main)
             .catch { _ in Just([]) }
-            .assign(to: \.onDeviceZimFiles, on: self)
+            .sink { [weak self] zimFiles in withAnimation { self?.onDeviceZimFiles = zimFiles } }
+        downloadZimFilesObserver = database?.objects(ZimFile.self)
+            .filter(NSPredicate(format: "stateRaw IN %@", ZimFile.State.download.map({ $0.rawValue })))
+            .sorted(byKeyPath: "size", ascending: false)
+            .collectionPublisher
+            .subscribe(on: queue)
+            .freeze()
+            .map { Array($0) }
+            .receive(on: DispatchQueue.main)
+            .catch { _ in Just([]) }
+            .sink { [weak self] zimFiles in withAnimation { self?.downloadZimFiles = zimFiles } }
     }
     
     func fetchOnlineCatalog() {

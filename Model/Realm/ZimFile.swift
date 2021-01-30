@@ -128,6 +128,7 @@ class ZimFile: Object, Identifiable {
     
     enum State: String {
         case remote, onDevice, retained, downloadQueued, downloadInProgress, downloadPaused, downloadError
+        static let download = Set<State>([.downloadQueued, .downloadInProgress, .downloadPaused, .downloadError])
     }
     
     enum Category: String, CaseIterable, Comparable, CustomStringConvertible, Identifiable {
