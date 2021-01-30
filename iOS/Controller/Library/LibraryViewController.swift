@@ -39,7 +39,12 @@ class LibraryViewController: UISplitViewController, UISplitViewControllerDelegat
         
         sidebarViewController.rootView.zimFileTapped = { [weak self] zimFile in self?.showZimFile(zimFile) }
         sidebarViewController.rootView.categoryTapped = { [weak self] category in self?.showCategory(category) }
-        sidebarViewController.navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .done, target: self, action: #selector(dismissController))
+        sidebarViewController.navigationItem.leftBarButtonItem = UIBarButtonItem(
+            barButtonSystemItem: .done, target: self, action: #selector(dismissController))
+        sidebarViewController.navigationItem.rightBarButtonItems = [
+            UIBarButtonItem(barButtonSystemItem: .add, target: nil, action: nil),
+            UIBarButtonItem(image: UIImage(systemName: "info.circle"), style: .plain, target: nil, action: nil),
+        ]
         showCategory(.wikipedia)
     }
     
@@ -49,6 +54,10 @@ class LibraryViewController: UISplitViewController, UISplitViewControllerDelegat
     
     @objc func dismissController() {
         dismiss(animated: true)
+    }
+    
+    @objc func openInfoController() {
+        
     }
     
     func splitViewController(_ splitViewController: UISplitViewController,
