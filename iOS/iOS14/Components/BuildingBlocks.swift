@@ -75,11 +75,11 @@ extension List {
 @available(iOS 13.0, *)
 struct CompactZimFileView: View {
     let metadata: ZimFile.Metadata
-    let displayOnDeviceIndicator: Bool
+    let accessory: Accessory
     
-    init(_ metadata: ZimFile.Metadata, displayOnDeviceIndicator: Bool = false) {
+    init(_ metadata: ZimFile.Metadata, accessory: Accessory = .none) {
         self.metadata = metadata
-        self.displayOnDeviceIndicator = displayOnDeviceIndicator
+        self.accessory = accessory
     }
     
     var body: some View {
@@ -91,14 +91,25 @@ struct CompactZimFileView: View {
                 Text(metadata.detail).font(.footnote)
             }.foregroundColor(.primary)
             Spacer()
-            if metadata.state == .onDevice, displayOnDeviceIndicator {
-                if UIDevice.current.userInterfaceIdiom == .phone {
-                    Image(systemName:"iphone").foregroundColor(.secondary)
-                } else if UIDevice.current.userInterfaceIdiom == .pad {
-                    Image(systemName:"ipad").foregroundColor(.secondary)
+            switch accessory {
+            case .none:
+                EmptyView()
+            case .onDevice:
+                if metadata.state == .onDevice {
+                    if UIDevice.current.userInterfaceIdiom == .phone {
+                        Image(systemName:"iphone").foregroundColor(.secondary)
+                    } else if UIDevice.current.userInterfaceIdiom == .pad {
+                        Image(systemName:"ipad").foregroundColor(.secondary)
+                    }
+                } else {
+                    EmptyView()
                 }
             }
             DisclosureIndicator()
         }
+    }
+    
+    enum Accessory {
+        case none, onDevice
     }
 }

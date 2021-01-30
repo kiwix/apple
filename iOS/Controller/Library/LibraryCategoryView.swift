@@ -51,7 +51,7 @@ struct LibraryCategoryView: View {
                     Section(header: viewModel.languages.count > 1 ? Text(language.name) : nil) {
                         ForEach(zimFiles) { metadata in
                             Button(action: { zimFileTapped(metadata) }, label: {
-                                CompactZimFileView(metadata, displayOnDeviceIndicator: true)
+                                CompactZimFileView(metadata, accessory: .onDevice)
                             })
                         }
                     }
