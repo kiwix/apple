@@ -123,6 +123,14 @@ class ZimFile: Object, Identifiable {
         guard let size = size.value else { return nil }
         return ByteCountFormatter.string(fromByteCount: size, countStyle: .file)
     }
+    
+    // MARK: - Formatters
+    
+    private static let countFormatter: NumberFormatter = {
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .decimal
+        return formatter
+    }()
 
     // MARK: - Type Definition
     
@@ -131,7 +139,7 @@ class ZimFile: Object, Identifiable {
         static let download = Set<State>([.downloadQueued, .downloadInProgress, .downloadPaused, .downloadError])
     }
     
-    enum Category: String, CaseIterable, Comparable, CustomStringConvertible, Identifiable {
+    enum Category: String, CaseIterable, CustomStringConvertible, Identifiable {
         case wikipedia
         case wikibooks
         case wikinews
@@ -145,10 +153,6 @@ class ZimFile: Object, Identifiable {
         case ted
         case stackExchange = "stack_exchange"
         case other
-        
-        static func < (lhs: ZimFile.Category, rhs: ZimFile.Category) -> Bool {
-            lhs.sortOrder < rhs.sortOrder
-        }
         
         var id: String { self.rawValue }
         var description: String {
@@ -208,35 +212,6 @@ class ZimFile: Object, Identifiable {
                 return #imageLiteral(resourceName: "Book")
             }
         }
-        
-        private var sortOrder: Int {
-            switch self {
-            case .wikipedia:
-                return 0
-            case .wikibooks:
-                return 1
-            case .wikinews:
-                return 2
-            case .wikiquote:
-                return 3
-            case .wikisource:
-                return 4
-            case .wikiversity:
-                return 5
-            case .wikivoyage:
-                return 6
-            case .wiktionary:
-                return 7
-            case .vikidia:
-                return 8
-            case .ted:
-                return 9
-            case .stackExchange:
-                return 10
-            case .other:
-                return 11
-            }
-        }
     }
     
     class NumberAbbrevationFormatter {
@@ -250,12 +225,6 @@ class ZimFile: Object, Identifiable {
             return "\(sign)\(rounded)\(units[exp-1])"
         }
     }
-    
-    private static let countFormatter: NumberFormatter = {
-        let formatter = NumberFormatter()
-        formatter.numberStyle = .decimal
-        return formatter
-    }()
     
     struct Metadata: Identifiable {
         let id: String
