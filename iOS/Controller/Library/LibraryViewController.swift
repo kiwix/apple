@@ -103,16 +103,16 @@ private struct LibrarySidebarView: View {
                     Button("From Your Computer", action: {})
                 }
             }
-            if !viewModel.onDeviceZimFiles.isEmpty {
+            if let zimFiles = viewModel.onDeviceZimFiles, !zimFiles.isEmpty {
                 Section(header: Text("On Device")) {
-                    ForEach(viewModel.onDeviceZimFiles) { metadata in
+                    ForEach(zimFiles) { metadata in
                         Button(action: { zimFileTapped(metadata) }, label: { CompactZimFileView(metadata) })
                     }
                 }
             }
-            if !viewModel.downloadZimFiles.isEmpty {
+            if let zimFiles = viewModel.downloadZimFiles, !zimFiles.isEmpty {
                 Section(header: Text("Download")) {
-                    ForEach(viewModel.downloadZimFiles) { metadata in
+                    ForEach(zimFiles) { metadata in
                         Button(action: { zimFileTapped(metadata) }, label: { CompactZimFileView(metadata) })
                     }
                 }
@@ -151,8 +151,8 @@ private struct LibrarySidebarView: View {
 @available(iOS 13.0, *)
 private class ViewModel: ObservableObject {
     @Published private(set) var totalZimFileCount: Int?
-    @Published private(set) var onDeviceZimFiles = [ZimFile.Metadata]()
-    @Published private(set) var downloadZimFiles = [ZimFile.Metadata]()
+    @Published private(set) var onDeviceZimFiles: [ZimFile.Metadata]?
+    @Published private(set) var downloadZimFiles: [ZimFile.Metadata]?
     
     private let queue = DispatchQueue(label: "org.kiwix.libraryUI.sidebar", qos: .userInitiated)
     private let database = try? Realm(configuration: Realm.defaultConfig)
@@ -178,7 +178,13 @@ private class ViewModel: ObservableObject {
             .map { $0.map { ZimFile.Metadata($0) } }
             .receive(on: DispatchQueue.main)
             .catch { _ in Just([]) }
-            .sink { [weak self] zimFiles in withAnimation { self?.onDeviceZimFiles = zimFiles } }
+            .sink { [weak self] zimFiles in
+                if self?.onDeviceZimFiles == nil {
+                    self?.onDeviceZimFiles = zimFiles
+                } else {
+                    withAnimation { self?.onDeviceZimFiles = zimFiles }
+                }
+            }
         downloadZimFilesObserver = database?.objects(ZimFile.self)
             .filter(NSPredicate(format: "stateRaw IN %@", ZimFile.State.download.map({ $0.rawValue })))
             .sorted(byKeyPath: "size", ascending: false)
@@ -188,7 +194,13 @@ private class ViewModel: ObservableObject {
             .map { $0.map { ZimFile.Metadata($0) } }
             .receive(on: DispatchQueue.main)
             .catch { _ in Just([]) }
-            .sink { [weak self] zimFiles in withAnimation { self?.downloadZimFiles = zimFiles } }
+            .sink { [weak self] zimFiles in
+                if self?.downloadZimFiles == nil {
+                    self?.downloadZimFiles = zimFiles
+                } else {
+                    withAnimation { self?.downloadZimFiles = zimFiles }
+                }
+            }
     }
     
     func fetchOnlineCatalog() {
