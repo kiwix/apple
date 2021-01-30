@@ -15,6 +15,7 @@ import RealmSwift
 class LibraryViewController: UISplitViewController, UISplitViewControllerDelegate {
     private let sidebarViewController: UIHostingController<LibrarySidebarView>
     private let sidebarNavigationViewController: UINavigationController
+    private let searchController = UISearchController(searchResultsController: UITableViewController())
     
     init() {
         self.sidebarViewController = UIHostingController(rootView: LibrarySidebarView())
@@ -34,15 +35,21 @@ class LibraryViewController: UISplitViewController, UISplitViewControllerDelegat
             UIBarButtonItem(barButtonSystemItem: .add, target: nil, action: nil),
             UIBarButtonItem(image: UIImage(systemName: "info.circle"), style: .plain, target: nil, action: nil),
         ]
+        sidebarViewController.navigationItem.searchController = searchController
+        sidebarViewController.definesPresentationContext = true
+        
+        searchController.searchBar.autocapitalizationType = .none
+        searchController.searchBar.placeholder = NSLocalizedString("Search by Name", comment: "Library: search placeholder")
+        searchController.searchResultsUpdater = searchController.searchResultsController as? LibrarySearchController
     }
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
     
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        if traitCollection.horizontalSizeClass == .regular {
+    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        super.traitCollectionDidChange(previousTraitCollection)
+        if traitCollection.horizontalSizeClass == .regular, viewControllers.count == 1 {
             showCategory(.wikipedia)
         }
     }
