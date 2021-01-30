@@ -37,7 +37,7 @@ struct Language: Comparable, Equatable, Identifiable, Hashable {
 struct LibraryCategoryView: View {
     @ObservedObject private var viewModel: ViewModel
     private let category: ZimFile.Category
-    var zimFileTapped: ((ZimFile.Metadata) -> Void) = { _ in }
+    var zimFileTapped: ((ZimFileView.ViewModel) -> Void) = { _ in }
     
     init(category: ZimFile.Category) {
         self.category = category
@@ -51,7 +51,7 @@ struct LibraryCategoryView: View {
                     Section(header: viewModel.languages.count > 1 ? Text(language.name) : nil) {
                         ForEach(zimFiles) { metadata in
                             Button(action: { zimFileTapped(metadata) }, label: {
-                                CompactZimFileView(metadata, accessory: .onDevice)
+                                ZimFileView(metadata, accessory: .onDevice)
                             })
                         }
                     }
@@ -64,7 +64,7 @@ struct LibraryCategoryView: View {
 @available(iOS 13.0, *)
 private class ViewModel: ObservableObject {
     @Published private(set) var languages = [Language]()
-    @Published private(set) var zimFiles = [String: [ZimFile.Metadata]]()
+    @Published private(set) var zimFiles = [String: [ZimFileView.ViewModel]]()
     
     private let category: ZimFile.Category
     private var languageObserver: Defaults.Observation?
@@ -96,9 +96,9 @@ private class ViewModel: ObservableObject {
             .subscribe(on: queue)
             .freeze()
             .map { (results: Results<ZimFile>) in
-                var zimFiles = [String: [ZimFile.Metadata]]()
+                var zimFiles = [String: [ZimFileView.ViewModel]]()
                 results.forEach { zimFile in
-                    zimFiles[zimFile.languageCode, default: [ZimFile.Metadata]()].append(ZimFile.Metadata(zimFile))
+                    zimFiles[zimFile.languageCode, default: [ZimFileView.ViewModel]()].append(ZimFileView.ViewModel(zimFile))
                 }
                 return zimFiles
             }

@@ -73,29 +73,29 @@ extension List {
 }
 
 @available(iOS 13.0, *)
-struct CompactZimFileView: View {
-    let metadata: ZimFile.Metadata
+struct ZimFileView: View {
+    let viewModel: ZimFileView.ViewModel
     let accessory: Accessory
     
-    init(_ metadata: ZimFile.Metadata, accessory: Accessory = .none) {
-        self.metadata = metadata
+    init(_ viewModel: ZimFileView.ViewModel, accessory: Accessory = .none) {
+        self.viewModel = viewModel
         self.accessory = accessory
     }
     
     var body: some View {
         HStack {
-            Favicon(data: metadata.faviconData)
+            Favicon(data: viewModel.faviconData)
             VStack(alignment: .leading) {
-                Text(metadata.title)
+                Text(viewModel.title)
                 Spacer(minLength: 2)
-                Text(metadata.detail).font(.footnote)
+                Text(viewModel.detail).font(.footnote)
             }.foregroundColor(.primary)
             Spacer()
             switch accessory {
             case .none:
                 EmptyView()
             case .onDevice:
-                if metadata.state == .onDevice {
+                if viewModel.state == .onDevice {
                     if UIDevice.current.userInterfaceIdiom == .phone {
                         Image(systemName:"iphone").foregroundColor(.secondary)
                     } else if UIDevice.current.userInterfaceIdiom == .pad {
@@ -111,5 +111,29 @@ struct CompactZimFileView: View {
     
     enum Accessory {
         case none, onDevice
+    }
+    
+    struct ViewModel: Identifiable {
+        let id: String
+        let title: String
+        let detail: String
+        let state: ZimFile.State
+        let faviconData: Data?
+        
+        init(_ zimFile: ZimFile, withDownloadInfo: Bool = false) {
+            self.id = zimFile.id
+            self.title = zimFile.title
+            if withDownloadInfo {
+                self.detail = zimFile.downloadProgress?.localizedAdditionalDescription ?? ""
+            } else {
+                self.detail = [
+                    zimFile.sizeDescription,
+                    zimFile.creationDateShortDescription,
+                    zimFile.articleCountShortDescription,
+                ].compactMap({ $0 }).joined(separator: ", ")
+            }
+            self.state = zimFile.state
+            self.faviconData = zimFile.faviconData
+        }
     }
 }

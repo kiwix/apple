@@ -79,7 +79,7 @@ class LibraryViewController: UISplitViewController, UISplitViewControllerDelegat
         showDetailViewController(navigationController, sender: nil)
     }
     
-    func showZimFile(_ metadata : ZimFile.Metadata) {
+    func showZimFile(_ metadata : ZimFileView.ViewModel) {
         let controller = UIHostingController(rootView: LibraryZimFileView(id: metadata.id))
         controller.navigationItem.title = metadata.title
         controller.navigationItem.largeTitleDisplayMode = .never
@@ -92,7 +92,7 @@ private struct LibrarySidebarView: View {
     @ObservedObject private var viewModel = ViewModel()
     
     var categoryTapped: ((ZimFile.Category) -> Void) = { _ in }
-    var zimFileTapped: ((ZimFile.Metadata) -> Void) = { _ in }
+    var zimFileTapped: ((ZimFileView.ViewModel) -> Void) = { _ in }
     
     var body: some View {
         List {
@@ -106,14 +106,14 @@ private struct LibrarySidebarView: View {
             if let zimFiles = viewModel.onDeviceZimFiles, !zimFiles.isEmpty {
                 Section(header: Text("On Device")) {
                     ForEach(zimFiles) { metadata in
-                        Button(action: { zimFileTapped(metadata) }, label: { CompactZimFileView(metadata) })
+                        Button(action: { zimFileTapped(metadata) }, label: { ZimFileView(metadata) })
                     }
                 }
             }
             if let zimFiles = viewModel.downloadZimFiles, !zimFiles.isEmpty {
                 Section(header: Text("Download")) {
                     ForEach(zimFiles) { metadata in
-                        Button(action: { zimFileTapped(metadata) }, label: { CompactZimFileView(metadata) })
+                        Button(action: { zimFileTapped(metadata) }, label: { ZimFileView(metadata) })
                     }
                 }
             }
@@ -151,9 +151,8 @@ private struct LibrarySidebarView: View {
 @available(iOS 13.0, *)
 private class ViewModel: ObservableObject {
     @Published private(set) var totalZimFileCount: Int?
-    @Published private(set) var onDeviceZimFiles: [ZimFile.Metadata]?
-    @Published private(set) var downloadZimFiles: [ZimFile.Metadata]?
-    @Published private(set) var downloadProgresses = [String: Progress]()
+    @Published private(set) var onDeviceZimFiles: [ZimFileView.ViewModel]?
+    @Published private(set) var downloadZimFiles: [ZimFileView.ViewModel]?
     
     private let queue = DispatchQueue(label: "org.kiwix.libraryUI.sidebar", qos: .userInitiated)
     private let database = try? Realm(configuration: Realm.defaultConfig)
@@ -176,7 +175,7 @@ private class ViewModel: ObservableObject {
             .collectionPublisher
             .subscribe(on: queue)
             .freeze()
-            .map { $0.map { ZimFile.Metadata($0) } }
+            .map { $0.map { ZimFileView.ViewModel($0) } }
             .receive(on: DispatchQueue.main)
             .catch { _ in Just([]) }
             .sink { [weak self] metadata in
@@ -192,21 +191,14 @@ private class ViewModel: ObservableObject {
             .collectionPublisher
             .subscribe(on: queue)
             .freeze()
-            .map { ( $0.map { ZimFile.Metadata($0) }, Array($0) ) }
+            .map { $0.map { ZimFileView.ViewModel($0, withDownloadInfo: true) } }
             .receive(on: DispatchQueue.main)
-            .catch { _ in Just(([], [])) }
-            .sink { [weak self] (metadata: [ZimFile.Metadata], zimFiles: [ZimFile]) in
+            .catch { _ in Just([]) }
+            .sink { [weak self] metadata in
                 if self?.downloadZimFiles == nil {
                     self?.downloadZimFiles = metadata
                 } else {
                     withAnimation { self?.downloadZimFiles = metadata }
-                }
-                zimFiles.forEach { zimFile in
-                    if let progress = self?.downloadProgresses[zimFile.id] {
-                        progress.completedUnitCount = zimFile.downloadTotalBytesWritten
-                    } else {
-                        self?.downloadProgresses[zimFile.id] = zimFile.downloadProgress
-                    }
                 }
             }
     }
