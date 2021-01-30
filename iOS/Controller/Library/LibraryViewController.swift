@@ -126,6 +126,7 @@ private struct LibrarySidebarView: View {
         }, label: {
             HStack {
                 Image(uiImage: category.icon)
+                    .renderingMode(.original)
                     .resizable()
                     .aspectRatio(contentMode: .fit)
                     .frame(maxWidth: 18, maxHeight: 18)

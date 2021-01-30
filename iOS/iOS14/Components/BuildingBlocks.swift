@@ -50,7 +50,9 @@ struct Favicon: View {
             }
         }()
         let shape = RoundedRectangle(cornerRadius: 4, style: .continuous)
-        return image.resizable()
+        return image
+            .renderingMode(.original)
+            .resizable()
             .frame(width: 24, height: 24)
             .background(Color(.white))
             .clipShape(shape)
