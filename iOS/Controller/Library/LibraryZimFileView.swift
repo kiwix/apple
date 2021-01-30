@@ -203,15 +203,7 @@ private class ViewModel: ObservableObject {
     
     init(_ zimFile: ZimFile) {
         self.state = zimFile.state
-        self.downloadProgress = {
-            guard let fileSize = zimFile.size.value else { return nil }
-            let progress = Progress(totalUnitCount: fileSize)
-            progress.completedUnitCount = zimFile.downloadTotalBytesWritten
-            progress.kind = .file
-            progress.fileOperationKind = .downloading
-            progress.fileTotalCount = 1
-            return progress
-        }()
+        self.downloadProgress = zimFile.downloadProgress
         self.hasEnoughDiskSpace = {
             guard let freeSpace = try? FileManager.default
                     .urls(for: .documentDirectory, in: .userDomainMask)

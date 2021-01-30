@@ -52,15 +52,26 @@ class ZimFile: Object, Identifiable {
     
     // MARK: -  computed properties
     
-    var shortID: String { String(id.prefix(8)) }
-    var state: State {
-        get { return State(rawValue: stateRaw) ?? .remote }
-        set { stateRaw = newValue.rawValue }
-    }
-    
     var category: Category {
         get { return Category(rawValue: categoryRaw) ?? .other }
         set { categoryRaw = newValue.rawValue }
+    }
+    
+    var downloadProgress: Progress? {
+        guard let fileSize = size.value else { return nil }
+        let progress = Progress(totalUnitCount: fileSize)
+        progress.completedUnitCount = downloadTotalBytesWritten
+        progress.kind = .file
+        progress.fileOperationKind = .downloading
+        progress.fileTotalCount = 1
+        return progress
+    }
+    
+    var shortID: String { String(id.prefix(8)) }
+    
+    var state: State {
+        get { return State(rawValue: stateRaw) ?? .remote }
+        set { stateRaw = newValue.rawValue }
     }
     
     // MARK: - Overrides
