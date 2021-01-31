@@ -15,12 +15,15 @@ import RealmSwift
 class LibraryViewController: UISplitViewController, UISplitViewControllerDelegate {
     private let sidebarViewController: UIHostingController<LibrarySidebarView>
     private let sidebarNavigationViewController: UINavigationController
-    private let searchController = UISearchController(searchResultsController: UITableViewController())
+    private let searchController: UISearchController
+    private let searchResultsController: UIHostingController<LibrarySearchResultView>
     
     init() {
         self.sidebarViewController = UIHostingController(rootView: LibrarySidebarView())
         self.sidebarNavigationViewController = UINavigationController(rootViewController: sidebarViewController)
         self.sidebarNavigationViewController.navigationBar.prefersLargeTitles = true
+        self.searchResultsController = UIHostingController(rootView: LibrarySearchResultView())
+        self.searchController = UISearchController(searchResultsController: searchResultsController)
 
         super.init(nibName: nil, bundle: nil)
         preferredDisplayMode = .allVisible
@@ -40,7 +43,8 @@ class LibraryViewController: UISplitViewController, UISplitViewControllerDelegat
         
         searchController.searchBar.autocapitalizationType = .none
         searchController.searchBar.placeholder = NSLocalizedString("Search by Name", comment: "Library: search placeholder")
-        searchController.searchResultsUpdater = searchController.searchResultsController as? LibrarySearchController
+        searchController.searchResultsUpdater = searchResultsController.rootView.viewModel
+        searchResultsController.rootView.zimFileTapped = { [weak self] metadata in self?.showZimFile(metadata) }
     }
     
     required init?(coder: NSCoder) {
