@@ -47,7 +47,7 @@ class LibraryViewController: UISplitViewController, UISplitViewControllerDelegat
         sidebarViewController.definesPresentationContext = true
         
         searchController.searchBar.autocapitalizationType = .none
-        searchController.searchBar.placeholder = NSLocalizedString("Search by Name", comment: "Library: search placeholder")
+        searchController.searchBar.placeholder = "Search by Name"
         searchController.searchResultsUpdater = searchResultsController.rootView.viewModel
         searchResultsController.rootView.zimFileTapped = { [weak self] metadata in self?.showZimFile(metadata) }
     }
@@ -227,6 +227,9 @@ struct LibraryInfoView: View {
     var body: some View {
         NavigationView {
             List {
+                Section {
+                    NavigationLink("Language", destination: LibraryLanguageView())
+                }
                 Section(
                     header: Text("Update"),
                     footer: Text("""
@@ -267,5 +270,19 @@ struct LibraryInfoView: View {
         } else {
             return Text("Never")
         }
+    }
+}
+
+/// List enabled and disabled languages in the library.
+@available(iOS 13.0, *)
+struct LibraryLanguageView: View {
+    var body: some View {
+        List {
+            
+        }.insetGroupedListStyle()
+    }
+    
+    class ViewModel: ObservableObject {
+        
     }
 }
