@@ -36,10 +36,10 @@ class LibraryViewController: UISplitViewController, UISplitViewControllerDelegat
             barButtonSystemItem: .done, target: self, action: #selector(dismissController))
         sidebarViewController.navigationItem.rightBarButtonItems = [
             UIBarButtonItem(barButtonSystemItem: .add, target: nil, action: nil),
-            UIBarButtonItem(image: UIImage(systemName: "gearshape"),
+            UIBarButtonItem(image: UIImage(systemName: "info.circle"),
                             style: .plain,
                             target: self,
-                            action: #selector(openInfoController(sender:))),
+                            action: #selector(showInfo(sender:))),
         ]
         sidebarViewController.navigationItem.searchController = searchController
         sidebarViewController.definesPresentationContext = true
@@ -65,8 +65,8 @@ class LibraryViewController: UISplitViewController, UISplitViewControllerDelegat
         dismiss(animated: true)
     }
     
-    @objc func openInfoController(sender: UIBarButtonItem) {
-        let controller = UIHostingController(rootView: LibrarySettingsView())
+    @objc func showInfo(sender: UIBarButtonItem) {
+        let controller = UIHostingController(rootView: LibraryInfoView())
         controller.modalPresentationStyle = .popover
         controller.popoverPresentationController?.barButtonItem = sender
         controller.rootView.dismiss = { [weak controller] in controller?.dismiss(animated: true) }

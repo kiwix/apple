@@ -1,5 +1,5 @@
 //
-//  LibrarySettingsView.swift
+//  LibraryInfoView.swift
 //  Kiwix
 //
 //  Created by Chris Li on 2/1/21.
@@ -10,7 +10,7 @@ import SwiftUI
 import Defaults
 
 @available(iOS 13.0, *)
-struct LibrarySettingsView: View {
+struct LibraryInfoView: View {
     @Default(.libraryLastRefreshTime) private var lastRefreshTime
     @Default(.libraryAutoRefresh) private var isAutoRefreshEnabled
     @Default(.backupDocumentDirectory) private var isBackingUpDocumentDirectory
@@ -46,7 +46,7 @@ struct LibrarySettingsView: View {
                 }
             }
             .insetGroupedListStyle()
-            .navigationBarTitle("Settings", displayMode: .inline)
+            .navigationBarTitle("Info", displayMode: .inline)
             .navigationBarItems(leading: Button("Done", action: dismiss))
         }.navigationViewStyle(StackNavigationViewStyle())
     }
