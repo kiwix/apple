@@ -276,13 +276,56 @@ struct LibraryInfoView: View {
 /// List enabled and disabled languages in the library.
 @available(iOS 13.0, *)
 struct LibraryLanguageView: View {
+    @Default(.libraryLanguageSortingMode) private var libraryLanguageSortingMode
+    @ObservedObject private var viewModel = ViewModel()
+    
     var body: some View {
+        if #available(iOS 14.0, *) {
+            list.toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Menu {
+                        Picker("Sorting options", selection: $libraryLanguageSortingMode) {
+                            Text("Alphabetically").tag(LibraryLanguageFilterSortingMode.alphabetically)
+                            Text("By Count").tag(LibraryLanguageFilterSortingMode.byCount)
+                        }
+                    } label: {
+                        Label("Sort", systemImage: "arrow.up.arrow.down")
+                    }
+                }
+            }
+        } else {
+            list
+        }
+    }
+    
+    var list: some View {
         List {
-            
-        }.insetGroupedListStyle()
+            ForEach(viewModel.languages) { language in
+                Text(language.name)
+            }
+        }
+        .insetGroupedListStyle()
+        .navigationBarTitle("Language", displayMode: .inline)
     }
     
     class ViewModel: ObservableObject {
+        @Published private(set) var languages: [Language]
         
+        private let queue = DispatchQueue(label: "org.kiwix.library.language", qos: .userInitiated)
+        private let database = try? Realm(configuration: Realm.defaultConfig)
+        
+        init() {
+            do {
+                let database = try Realm(configuration: Realm.defaultConfig)
+                languages = Array(database.objects(ZimFile.self)
+                    .distinct(by: ["languageCode"])
+                    .compactMap { zimFile in
+                        Language(
+                            code: zimFile.languageCode,
+                            count: database.objects(ZimFile.self).filter("languageCode = %@", zimFile.languageCode).count
+                        )
+                    })
+            } catch { languages = [] }
+        }
     }
 }
