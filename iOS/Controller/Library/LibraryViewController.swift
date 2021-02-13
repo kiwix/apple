@@ -41,7 +41,7 @@ class LibraryViewController: UISplitViewController, UISplitViewControllerDelegat
             UIBarButtonItem(image: UIImage(systemName: "info.circle"),
                             style: .plain,
                             target: self,
-                            action: #selector(showInfo(sender:))),
+                            action: #selector(showInfo(sender:)))
         ]
         sidebarViewController.navigationItem.searchController = searchController
         sidebarViewController.definesPresentationContext = true
@@ -88,7 +88,7 @@ class LibraryViewController: UISplitViewController, UISplitViewControllerDelegat
         showDetailViewController(navigationController, sender: nil)
     }
     
-    func showZimFile(_ metadata : ZimFileView.ViewModel) {
+    func showZimFile(_ metadata: ZimFileView.ViewModel) {
         let controller = UIHostingController(rootView: LibraryZimFileView(id: metadata.id))
         controller.navigationItem.title = metadata.title
         controller.navigationItem.largeTitleDisplayMode = .never
@@ -165,9 +165,9 @@ private class ViewModel: ObservableObject {
     
     private let queue = DispatchQueue(label: "org.kiwix.libraryUI.sidebar", qos: .userInitiated)
     private let database = try? Realm(configuration: Realm.defaultConfig)
-    private var totalZimFileCountObserver: AnyCancellable? = nil
-    private var onDeviceZimFilesObserver: AnyCancellable? = nil
-    private var downloadZimFilesObserver: AnyCancellable? = nil
+    private var totalZimFileCountObserver: AnyCancellable?
+    private var onDeviceZimFilesObserver: AnyCancellable?
+    private var downloadZimFilesObserver: AnyCancellable?
     
     init() {
         totalZimFileCountObserver = database?.objects(ZimFile.self)
@@ -214,7 +214,7 @@ private class ViewModel: ObservableObject {
     }
 }
 
-
+/// Info about the library, inlcluding info about enabled lanugage, catalog update and zim file update.
 @available(iOS 13.0, *)
 struct LibraryInfoView: View {
     @Default(.libraryLastRefreshTime) private var lastRefreshTime
@@ -229,8 +229,7 @@ struct LibraryInfoView: View {
             List {
                 Section(
                     header: Text("Update"),
-                    footer: Text(
-                        """
+                    footer: Text("""
                         With auto update enabled, the catalog will be updated both when library \
                         is opened and utilizing iOS's Background App Refresh feature.
                         """
