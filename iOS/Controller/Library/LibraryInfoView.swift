@@ -156,6 +156,7 @@ struct LibraryLanguageView: View {
             }
         }
         
+        /// Prepares all language data when view appears.
         func load() {
             do {
                 let database = try Realm(configuration: Realm.defaultConfig)
@@ -170,6 +171,10 @@ struct LibraryLanguageView: View {
             } catch { allLanguages = [] }
         }
         
+        /// Update enabled and disabled languages.
+        /// - Parameters:
+        ///   - languageCodes: enabled language codes
+        ///   - sortingMode: how both enabled and disabled languages should be sorted
         func update(languageCodes: [String], sortingMode: LibraryLanguageFilterSortingMode) {
             let languages = allLanguages.sorted { (lhs, rhs) -> Bool in
                 switch sortingMode {
