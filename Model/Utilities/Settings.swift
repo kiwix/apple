@@ -41,11 +41,6 @@ extension Defaults {
         get { (key.suite.array(forKey: key.name) as? [String]) ?? key.defaultValue }
         set { key.suite.set(newValue, forKey: key.name) }
     }
-    
-    static subscript(key: Key<LibraryLanguageFilterSortingMode>) -> LibraryLanguageFilterSortingMode {
-        get { LibraryLanguageFilterSortingMode(rawValue: key.suite.string(forKey: key.name) ?? "") ?? key.defaultValue }
-        set { key.suite.set(newValue.rawValue, forKey: key.name) }
-    }
 }
 
 extension UserDefaults {

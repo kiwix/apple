@@ -300,19 +300,23 @@ struct LibraryLanguageView: View {
     
     var list: some View {
         List {
-            Section {
+            Section(header: Text("Showing")) {
                 ForEach(viewModel.enabledLanguages) { language in
                     HStack {
+                        Image(systemName: "checkmark.circle").foregroundColor(.green)
                         Text(language.name)
                         Spacer()
+                        if let count = language.count { Text("\(count)").foregroundColor(.secondary) }
                     }
                 }
             }
-            Section {
+            Section(header: Text("Hiding")) {
                 ForEach(viewModel.disabledLanguages) { language in
                     HStack {
+                        Image(systemName: "circle").foregroundColor(.secondary)
                         Text(language.name)
                         Spacer()
+                        if let count = language.count { Text("\(count)").foregroundColor(.secondary) }
                     }
                 }
             }
@@ -322,7 +326,7 @@ struct LibraryLanguageView: View {
     }
     
     class ViewModel: ObservableObject {
-        let counts: [Language: Int]
+        private let allLanguages: [Language]
         @Published private(set) var enabledLanguages: [Language] = []
         @Published private(set) var disabledLanguages: [Language] = []
         
@@ -331,7 +335,7 @@ struct LibraryLanguageView: View {
         init() {
             do {
                 let database = try Realm(configuration: Realm.defaultConfig)
-                counts = database.objects(ZimFile.self)
+                allLanguages = database.objects(ZimFile.self)
                     .distinct(by: ["languageCode"])
                     .compactMap {
                         Language(
@@ -339,11 +343,11 @@ struct LibraryLanguageView: View {
                             count: database.objects(ZimFile.self).filter("languageCode = %@", $0.languageCode).count
                         )
                     }
-                    .reduce(into: [Language: Int]()) { (result, language) in
-                        result[language] = database.objects(ZimFile.self).filter("languageCode = %@", language.code).count
-                    }
-            } catch { counts = [:] }
-            update(languageCodes: Defaults[.libraryFilterLanguageCodes], sortingMode: Defaults[.libraryLanguageSortingMode])
+            } catch { allLanguages = [] }
+            update(
+                languageCodes: Defaults[.libraryFilterLanguageCodes],
+                sortingMode: Defaults[.libraryLanguageSortingMode]
+            )
             
             observer = Publishers.CombineLatest(
                 Defaults.publisher(.libraryFilterLanguageCodes),
@@ -354,13 +358,13 @@ struct LibraryLanguageView: View {
         }
         
         func update(languageCodes: [String], sortingMode: LibraryLanguageFilterSortingMode) {
-            let languages = self.counts.keys.sorted { (lhs, rhs) -> Bool in
+            let languages = allLanguages.sorted { (lhs, rhs) -> Bool in
                 switch sortingMode {
                 case .alphabetically:
                     return lhs < rhs
                 case .byCount:
-                    guard let lhsCount = self.counts[lhs], let rhsCount = self.counts[rhs], lhsCount != rhsCount else { return lhs < rhs }
-                    return lhsCount > rhsCount
+                    guard lhs.count != rhs.count else { return lhs < rhs }
+                    return lhs.count ?? 0 > rhs.count ?? 0
                 }
             }
             
@@ -373,8 +377,10 @@ struct LibraryLanguageView: View {
                     disabledLanguages.append(language)
                 }
             }
-            self.enabledLanguages = enabledLanguages
-            self.disabledLanguages = disabledLanguages
+            withAnimation {
+                self.enabledLanguages = enabledLanguages
+                self.disabledLanguages = disabledLanguages
+            }
         }
     }
 }
