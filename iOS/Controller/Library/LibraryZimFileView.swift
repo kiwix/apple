@@ -14,17 +14,13 @@ import RealmSwift
 /// Information about a single zim file in a list view.
 @available(iOS 14.0, *)
 struct LibraryZimFileView: View {
-    @AppStorage("downloadUsingCellular") var downloadUsingCellular: Bool = false
+    @AppStorage("downloadUsingCellular") private var downloadUsingCellular: Bool = false
     @State private var showingDeleteAlert = false
     @ObservedObject private var viewModel: ViewModel
     
     private let zimFile: ZimFile
     var openMainPage: ((String) -> Void) = { _ in }
-    var zimFileDeleted: (() -> Void) = {} {
-        didSet {
-            viewModel.zimFileDeleted = zimFileDeleted
-        }
-    }
+    var zimFileDeleted: (() -> Void) = {} { didSet { viewModel.zimFileDeleted = zimFileDeleted } }
     
     init?(id: String) {
         guard let database = try? Realm(configuration: Realm.defaultConfig),
