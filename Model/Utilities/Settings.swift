@@ -26,6 +26,7 @@ extension Defaults.Keys {
     
     // library
     static let libraryFilterLanguageCodes = Key<[String]>("libraryFilterLanguageCodes", default: [])
+    static let libraryLanguageCodes = Key<Set<String>>("libraryFilterLanguageCodes", default: Set())
     static let libraryShownLanguageFilterAlert = Key<Bool>("libraryHasShownLanguageFilterAlert", default: false)
     static let libraryLanguageSortingMode = Key<LibraryLanguageFilterSortingMode>(
         "libraryLanguageSortingMode", default: LibraryLanguageFilterSortingMode.alphabetically
@@ -40,6 +41,11 @@ extension Defaults {
     static subscript(key: Key<[String]>) -> [String] {
         get { (key.suite.array(forKey: key.name) as? [String]) ?? key.defaultValue }
         set { key.suite.set(newValue, forKey: key.name) }
+    }
+    
+    static subscript(key: Key<Set<String>>) -> Set<String> {
+        get { Set(key.suite.array(forKey: key.name) as? [String] ?? Array(key.defaultValue))  }
+        set { key.suite.set(Array(newValue), forKey: key.name) }
     }
 }
 

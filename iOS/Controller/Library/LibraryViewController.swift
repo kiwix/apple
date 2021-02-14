@@ -302,22 +302,16 @@ struct LibraryLanguageView: View {
         List {
             Section(header: Text("Showing")) {
                 ForEach(viewModel.enabledLanguages) { language in
-                    HStack {
-                        Image(systemName: "checkmark.circle").foregroundColor(.green)
-                        Text(language.name)
-                        Spacer()
-                        if let count = language.count { Text("\(count)").foregroundColor(.secondary) }
-                    }
+                    Button(action: { Defaults[.libraryLanguageCodes].remove(language.code) }, label: {
+                        Cell(language: language, isShowing: true)
+                    })
                 }
             }
             Section(header: Text("Hiding")) {
                 ForEach(viewModel.disabledLanguages) { language in
-                    HStack {
-                        Image(systemName: "circle").foregroundColor(.secondary)
-                        Text(language.name)
-                        Spacer()
-                        if let count = language.count { Text("\(count)").foregroundColor(.secondary) }
-                    }
+                    Button(action: { Defaults[.libraryLanguageCodes].insert(language.code) }, label: {
+                        Cell(language: language, isShowing: false)
+                    })
                 }
             }
         }
@@ -325,11 +319,25 @@ struct LibraryLanguageView: View {
         .navigationBarTitle("Language", displayMode: .inline)
     }
     
+    struct Cell: View {
+        let language: Language
+        let isShowing: Bool
+        
+        var body: some View {
+            HStack {
+                Image(systemName: isShowing ? "checkmark.circle" : "circle").foregroundColor(.secondary)
+                Text(language.name).foregroundColor(.primary)
+                Spacer()
+                if let count = language.count { Text("\(count)").foregroundColor(.secondary) }
+            }
+        }
+    }
+    
     class ViewModel: ObservableObject {
-        private let allLanguages: [Language]
         @Published private(set) var enabledLanguages: [Language] = []
         @Published private(set) var disabledLanguages: [Language] = []
         
+        private let allLanguages: [Language]
         private var observer: AnyCancellable?
         
         init() {
@@ -345,19 +353,19 @@ struct LibraryLanguageView: View {
                     }
             } catch { allLanguages = [] }
             update(
-                languageCodes: Defaults[.libraryFilterLanguageCodes],
+                languageCodes: Defaults[.libraryLanguageCodes],
                 sortingMode: Defaults[.libraryLanguageSortingMode]
             )
             
             observer = Publishers.CombineLatest(
-                Defaults.publisher(.libraryFilterLanguageCodes),
+                Defaults.publisher(.libraryLanguageCodes),
                 Defaults.publisher(.libraryLanguageSortingMode)
             ).sink { languageCodes, sortingMode in
                 self.update(languageCodes: languageCodes.newValue, sortingMode: sortingMode.newValue)
             }
         }
         
-        func update(languageCodes: [String], sortingMode: LibraryLanguageFilterSortingMode) {
+        func update(languageCodes: Set<String>, sortingMode: LibraryLanguageFilterSortingMode) {
             let languages = allLanguages.sorted { (lhs, rhs) -> Bool in
                 switch sortingMode {
                 case .alphabetically:
