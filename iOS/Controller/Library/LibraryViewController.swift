@@ -300,8 +300,21 @@ struct LibraryLanguageView: View {
     
     var list: some View {
         List {
-            ForEach(viewModel.languages) { language in
-                Text(language.name)
+            Section {
+                ForEach(viewModel.enabledLanguages) { language in
+                    HStack {
+                        Text(language.name)
+                        Spacer()
+                    }
+                }
+            }
+            Section {
+                ForEach(viewModel.disabledLanguages) { language in
+                    HStack {
+                        Text(language.name)
+                        Spacer()
+                    }
+                }
             }
         }
         .insetGroupedListStyle()
@@ -309,23 +322,59 @@ struct LibraryLanguageView: View {
     }
     
     class ViewModel: ObservableObject {
-        @Published private(set) var languages: [Language]
+        let counts: [Language: Int]
+        @Published private(set) var enabledLanguages: [Language] = []
+        @Published private(set) var disabledLanguages: [Language] = []
         
-        private let queue = DispatchQueue(label: "org.kiwix.library.language", qos: .userInitiated)
-        private let database = try? Realm(configuration: Realm.defaultConfig)
+        private var observer: AnyCancellable?
         
         init() {
             do {
                 let database = try Realm(configuration: Realm.defaultConfig)
-                languages = Array(database.objects(ZimFile.self)
+                counts = database.objects(ZimFile.self)
                     .distinct(by: ["languageCode"])
-                    .compactMap { zimFile in
+                    .compactMap {
                         Language(
-                            code: zimFile.languageCode,
-                            count: database.objects(ZimFile.self).filter("languageCode = %@", zimFile.languageCode).count
+                            code: $0.languageCode,
+                            count: database.objects(ZimFile.self).filter("languageCode = %@", $0.languageCode).count
                         )
-                    })
-            } catch { languages = [] }
+                    }
+                    .reduce(into: [Language: Int]()) { (result, language) in
+                        result[language] = database.objects(ZimFile.self).filter("languageCode = %@", language.code).count
+                    }
+            } catch { counts = [:] }
+            update(languageCodes: Defaults[.libraryFilterLanguageCodes], sortingMode: Defaults[.libraryLanguageSortingMode])
+            
+            observer = Publishers.CombineLatest(
+                Defaults.publisher(.libraryFilterLanguageCodes),
+                Defaults.publisher(.libraryLanguageSortingMode)
+            ).sink { languageCodes, sortingMode in
+                self.update(languageCodes: languageCodes.newValue, sortingMode: sortingMode.newValue)
+            }
+        }
+        
+        func update(languageCodes: [String], sortingMode: LibraryLanguageFilterSortingMode) {
+            let languages = self.counts.keys.sorted { (lhs, rhs) -> Bool in
+                switch sortingMode {
+                case .alphabetically:
+                    return lhs < rhs
+                case .byCount:
+                    guard let lhsCount = self.counts[lhs], let rhsCount = self.counts[rhs], lhsCount != rhsCount else { return lhs < rhs }
+                    return lhsCount > rhsCount
+                }
+            }
+            
+            var enabledLanguages = [Language]()
+            var disabledLanguages = [Language]()
+            for language in languages {
+                if languageCodes.contains(language.code) {
+                    enabledLanguages.append(language)
+                } else {
+                    disabledLanguages.append(language)
+                }
+            }
+            self.enabledLanguages = enabledLanguages
+            self.disabledLanguages = disabledLanguages
         }
     }
 }
