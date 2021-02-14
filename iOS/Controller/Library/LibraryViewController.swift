@@ -303,14 +303,14 @@ struct LibraryLanguageView: View {
             Section(header: Text("Showing")) {
                 ForEach(viewModel.enabledLanguages) { language in
                     Button(action: { viewModel.hide(language: language) }, label: {
-                        Cell(language: language, isShowing: true)
+                        Cell(language: language, isEnabled: true)
                     })
                 }
             }
             Section(header: Text("Hiding")) {
                 ForEach(viewModel.disabledLanguages) { language in
                     Button(action: { viewModel.show(language: language) }, label: {
-                        Cell(language: language, isShowing: false)
+                        Cell(language: language, isEnabled: false)
                     })
                 }
             }
@@ -321,12 +321,12 @@ struct LibraryLanguageView: View {
     
     struct Cell: View {
         let language: Language
-        let isShowing: Bool
+        let isEnabled: Bool
         
         var body: some View {
             HStack {
-                Image(systemName: isShowing ? "checkmark.circle" : "circle")
-                    .foregroundColor(isShowing ? .green : .secondary)
+                Image(systemName: isEnabled ? "checkmark.circle" : "circle")
+                    .foregroundColor(isEnabled ? .green : .secondary)
                 Text(language.name).foregroundColor(.primary)
                 Spacer()
                 if let count = language.count { Text("\(count)").foregroundColor(.secondary) }
@@ -366,7 +366,7 @@ struct LibraryLanguageView: View {
             }
         }
         
-        func update(languageCodes: [String], sortingMode: LibraryLanguageFilterSortingMode) {
+        private func update(languageCodes: [String], sortingMode: LibraryLanguageFilterSortingMode) {
             let languages = allLanguages.sorted { (lhs, rhs) -> Bool in
                 switch sortingMode {
                 case .alphabetically:
