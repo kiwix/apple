@@ -8,15 +8,18 @@
 
 import Combine
 import SwiftUI
-import Defaults
+
 import RealmSwift
 
-@available(iOS 13.0, *)
+/// Information about a single zim file in a list view.
+@available(iOS 14.0, *)
 struct LibraryZimFileView: View {
-    private let zimFile: ZimFile
-    @Default(.downloadUsingCellular) private var downloadUsingCellular
+    @AppStorage("downloadUsingCellular") var downloadUsingCellular: Bool = false
     @State private var showingDeleteAlert = false
     @ObservedObject private var viewModel: ViewModel
+    
+    private let zimFile: ZimFile
+    var openMainPage: ((String) -> Void) = { _ in }
     var zimFileDeleted: (() -> Void) = {} {
         didSet {
             viewModel.zimFileDeleted = zimFileDeleted
@@ -31,7 +34,7 @@ struct LibraryZimFileView: View {
     }
     
     var body: some View {
-        SwiftUI.List {
+        List {
             Section {
                 Text(zimFile.title)
                 Text(zimFile.fileDescription)
@@ -50,14 +53,14 @@ struct LibraryZimFileView: View {
                         ActionButton(title: "Download - Not Enough Space").disabled(true)
                     }
                 case .onDevice:
-                    ActionButton(title: "Delete", isDestructive: true) {
-                        showingDeleteAlert = true
+                    ActionButton(title: "Open Main Page", isDestructive: false) {
+                        openMainPage(zimFile.id)
                     }
                 case .downloadQueued:
                     Text(viewModel.state.description)
                     cancelButton
                 case .downloadInProgress:
-                    if #available(iOS 14.0, *), let progress = viewModel.downloadProgress {
+                    if let progress = viewModel.downloadProgress {
                         ProgressView(progress)
                     } else {
                         Text("Downloading...")
@@ -110,8 +113,15 @@ struct LibraryZimFileView: View {
                     Button("Copy") { UIPasteboard.general.string = zimFile.id }
                 }))
             }
+            if viewModel.state == .onDevice {
+                Section {
+                    ActionButton(title: "Delete", isDestructive: true) {
+                        showingDeleteAlert = true
+                    }
+                }
+            }
         }
-        .insetGroupedListStyle()
+        .listStyle(InsetGroupedListStyle())
         .navigationBarTitle(zimFile.title)
         .alert(isPresented: $showingDeleteAlert) {
             let message: String = {
@@ -191,45 +201,44 @@ struct LibraryZimFileView: View {
             })
         }
     }
-}
-
-@available(iOS 13.0, *)
-private class ViewModel: ObservableObject {
-    @Published var state: ZimFile.State
-    @Published var downloadProgress: Progress?
-    let hasEnoughDiskSpace: Bool
-    var zimFileDeleted: (() -> Void) = {}
-    private var zimFileObserver: NotificationToken?
     
-    init(_ zimFile: ZimFile) {
-        self.state = zimFile.state
-        self.downloadProgress = zimFile.downloadProgress
-        self.hasEnoughDiskSpace = {
-            guard let freeSpace = try? FileManager.default
-                    .urls(for: .documentDirectory, in: .userDomainMask)
-                    .first?.resourceValues(forKeys: [.volumeAvailableCapacityForImportantUsageKey])
-                    .volumeAvailableCapacityForImportantUsage,
-                  let fileSize = zimFile.size.value else { return false }
-            return fileSize <= freeSpace
-        }()
+    private class ViewModel: ObservableObject {
+        @Published var state: ZimFile.State
+        @Published var downloadProgress: Progress?
         
-        zimFileObserver = zimFile.observe { [weak self] change in
-            switch change {
-                case .change(let object, let properties):
-                    guard let zimFile = object as? ZimFile else { return }
-                    for property in properties {
-                        if property.name == "stateRaw" { self?.state = zimFile.state }
-                        if property.name == "downloadTotalBytesWritten" {
-                            withAnimation {
-                                self?.downloadProgress?.completedUnitCount = zimFile.downloadTotalBytesWritten
+        let hasEnoughDiskSpace: Bool
+        var zimFileDeleted: (() -> Void) = {}
+        private var zimFileObserver: NotificationToken?
+        
+        init(_ zimFile: ZimFile) {
+            state = zimFile.state
+            downloadProgress = zimFile.downloadProgress
+            hasEnoughDiskSpace = {
+                guard let freeSpace = try? FileManager.default
+                        .urls(for: .documentDirectory, in: .userDomainMask)
+                        .first?.resourceValues(forKeys: [.volumeAvailableCapacityForImportantUsageKey])
+                        .volumeAvailableCapacityForImportantUsage,
+                      let fileSize = zimFile.size.value else { return false }
+                return fileSize <= freeSpace
+            }()
+            zimFileObserver = zimFile.observe { [weak self] change in
+                switch change {
+                    case .change(let object, let properties):
+                        guard let zimFile = object as? ZimFile else { return }
+                        for property in properties {
+                            if property.name == "stateRaw" { self?.state = zimFile.state }
+                            if property.name == "downloadTotalBytesWritten" {
+                                withAnimation {
+                                    self?.downloadProgress?.completedUnitCount = zimFile.downloadTotalBytesWritten
+                                }
                             }
                         }
+                    case .deleted:
+                        self?.zimFileDeleted()
+                    default:
+                        break
                     }
-                case .deleted:
-                    self?.zimFileDeleted()
-                default:
-                    break
-                }
+            }
         }
     }
 }

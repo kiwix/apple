@@ -80,23 +80,31 @@ class LibraryViewController: UISplitViewController, UISplitViewControllerDelegat
     }
     
     func showCategory(_ category: ZimFile.Category) {
-        let controller = UIHostingController(rootView: LibraryCategoryView(category: category))
-        controller.navigationItem.title = category.description
-        controller.navigationItem.largeTitleDisplayMode = .never
-        let navigationController = UINavigationController(rootViewController: controller)
-        controller.rootView.zimFileTapped = { metadata in
-            let controller = UIHostingController(rootView: LibraryZimFileView(id: metadata.id))
-            controller.rootView?.zimFileDeleted = { navigationController.popViewController(animated: true) }
-            navigationController.pushViewController(controller, animated: true)
+        if #available(iOS 14.0, *) {
+            let controller = UIHostingController(rootView: LibraryCategoryView(category: category))
+            controller.navigationItem.title = category.description
+            controller.navigationItem.largeTitleDisplayMode = .never
+            let navigationController = UINavigationController(rootViewController: controller)
+            controller.rootView.zimFileTapped = { metadata in
+                let controller = UIHostingController(rootView: LibraryZimFileView(id: metadata.id))
+                controller.rootView?.zimFileDeleted = { navigationController.popViewController(animated: true) }
+                navigationController.pushViewController(controller, animated: true)
+            }
+            showDetailViewController(navigationController, sender: nil)
+        } else {
+            // Fallback on earlier versions
         }
-        showDetailViewController(navigationController, sender: nil)
     }
     
     func showZimFile(_ metadata: ZimFileView.ViewModel) {
-        let controller = UIHostingController(rootView: LibraryZimFileView(id: metadata.id))
-        controller.navigationItem.title = metadata.title
-        controller.navigationItem.largeTitleDisplayMode = .never
-        showDetailViewController(UINavigationController(rootViewController: controller), sender: nil)
+        if #available(iOS 14.0, *) {
+            let controller = UIHostingController(rootView: LibraryZimFileView(id: metadata.id))
+            controller.navigationItem.title = metadata.title
+            controller.navigationItem.largeTitleDisplayMode = .never
+            showDetailViewController(UINavigationController(rootViewController: controller), sender: nil)
+        } else {
+            // Fallback on earlier versions
+        }
     }
 }
 
