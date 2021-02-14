@@ -176,6 +176,7 @@ struct LibraryLanguageView: View {
         ///   - languageCodes: enabled language codes
         ///   - sortingMode: how both enabled and disabled languages should be sorted
         func update(languageCodes: [String], sortingMode: LibraryLanguageFilterSortingMode) {
+            // sort all the languages
             let languages = allLanguages.sorted { (lhs, rhs) -> Bool in
                 switch sortingMode {
                 case .alphabetically:
@@ -186,6 +187,7 @@ struct LibraryLanguageView: View {
                 }
             }
             
+            // separate sorted languages into enabled and disabled
             var enabledLanguages = [Language]()
             var disabledLanguages = [Language]()
             for language in languages {
