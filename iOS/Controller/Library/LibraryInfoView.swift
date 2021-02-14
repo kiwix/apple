@@ -18,7 +18,7 @@ struct LibraryInfoView: View {
     @Default(.libraryLastRefreshTime) private var lastRefreshTime
     @Default(.libraryAutoRefresh) private var isAutoRefreshEnabled
     @Default(.backupDocumentDirectory) private var isBackingUpDocumentDirectory
-    @Default(.libraryFilterLanguageCodes) private var languageCodes
+    @ObservedObject private var viewModel = ViewModel()
     
     private let languageView = LibraryLanguageView()
     var dismiss: (() -> Void) = {}
@@ -26,8 +26,10 @@ struct LibraryInfoView: View {
     var body: some View {
         NavigationView {
             List {
-                Section {
-                    NavigationLink("Language", destination: languageView)
+                if let languageCount = viewModel.languageCount, languageCount > 0 {
+                    Section {
+                        NavigationLink("Language", destination: languageView)
+                    }
                 }
                 Section(
                     header: Text("Update"),
@@ -53,13 +55,13 @@ struct LibraryInfoView: View {
                     Toggle("Include files in backup", isOn: $isBackingUpDocumentDirectory)
                 }
             }
-            .insetGroupedListStyle()
+            .listStyle(InsetGroupedListStyle())
             .navigationBarTitle("Info", displayMode: .inline)
             .navigationBarItems(leading: Button("Done", action: dismiss))
         }.navigationViewStyle(StackNavigationViewStyle())
     }
     
-    var lastUpdatedTime: some View {
+    var lastUpdatedTime: Text {
         if let refreshTime = Defaults[.libraryLastRefreshTime] {
             if Date().timeIntervalSince(refreshTime) < 120 {
                 return Text("Just now")
@@ -68,6 +70,28 @@ struct LibraryInfoView: View {
             }
         } else {
             return Text("Never")
+        }
+    }
+    
+    class ViewModel: ObservableObject {
+        @Published private(set) var languageCount: Int?
+        
+        private let queue = DispatchQueue(label: "org.kiwix.libraryUI.sidebar", qos: .userInitiated)
+        private let database = try? Realm(configuration: Realm.defaultConfig)
+        private var languageCountObserver: AnyCancellable?
+        
+        init() {
+            languageCountObserver = database?.objects(ZimFile.self)
+                .distinct(by: ["languageCode"])
+                .collectionPublisher
+                .subscribe(on: queue)
+                .freeze()
+                .map { $0.count }
+                .receive(on: DispatchQueue.main)
+                .catch { _ in Just(0) }
+                .sink { [weak self] count in
+                    withAnimation(self?.languageCount == nil ? .none : .default) { self?.languageCount = count }
+                }
         }
     }
 }
@@ -97,7 +121,7 @@ struct LibraryLanguageView: View {
                 }
             }
         }
-        .insetGroupedListStyle()
+        .listStyle(InsetGroupedListStyle())
         .navigationBarTitle("Language", displayMode: .inline)
         .onAppear {
             viewModel.load()
