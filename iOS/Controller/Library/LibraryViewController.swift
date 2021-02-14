@@ -68,11 +68,15 @@ class LibraryViewController: UISplitViewController, UISplitViewControllerDelegat
     }
     
     @objc func showInfo(sender: UIBarButtonItem) {
-        let controller = UIHostingController(rootView: LibraryInfoView())
-        controller.modalPresentationStyle = .popover
-        controller.popoverPresentationController?.barButtonItem = sender
-        controller.rootView.dismiss = { [weak controller] in controller?.dismiss(animated: true) }
-        present(controller, animated: true)
+        if #available(iOS 14.0, *) {
+            let controller = UIHostingController(rootView: LibraryInfoView())
+            controller.modalPresentationStyle = .popover
+            controller.popoverPresentationController?.barButtonItem = sender
+            controller.rootView.dismiss = { [weak controller] in controller?.dismiss(animated: true) }
+            present(controller, animated: true)
+        } else {
+            // Fallback on earlier versions
+        }
     }
     
     func showCategory(_ category: ZimFile.Category) {

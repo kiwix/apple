@@ -13,7 +13,7 @@ import Defaults
 import RealmSwift
 
 /// Info about the library, inlcluding info about enabled lanugage, catalog update and zim file update.
-@available(iOS 13.0, *)
+@available(iOS 14.0, *)
 struct LibraryInfoView: View {
     @Default(.libraryLastRefreshTime) private var lastRefreshTime
     @Default(.libraryAutoRefresh) private var isAutoRefreshEnabled
@@ -73,40 +73,23 @@ struct LibraryInfoView: View {
 }
 
 /// List and update enabled and disabled languages in the library.
-@available(iOS 13.0, *)
+@available(iOS 14.0, *)
 struct LibraryLanguageView: View {
     @Default(.libraryLanguageSortingMode) private var libraryLanguageSortingMode
     @ObservedObject private var viewModel = ViewModel()
     
     var body: some View {
-        if #available(iOS 14.0, *) {
-            list.toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Menu {
-                        Picker("Sorting options", selection: $libraryLanguageSortingMode) {
-                            Text("Alphabetically").tag(LibraryLanguageFilterSortingMode.alphabetically)
-                            Text("By Count").tag(LibraryLanguageFilterSortingMode.byCount)
-                        }
-                    } label: {
-                        Label("Sort", systemImage: "arrow.up.arrow.down")
+        List {
+            if !viewModel.enabledLanguages.isEmpty {
+                Section(header: Text("Showing")) {
+                    ForEach(viewModel.enabledLanguages) { language in
+                        Button(action: { viewModel.disable(language) }, label: {
+                            Cell(language: language, isEnabled: true)
+                        })
                     }
                 }
             }
-        } else {
-            list
-        }
-    }
-    
-    var list: some View {
-        List {
-            Section(header: Text("Showing")) {
-                ForEach(viewModel.enabledLanguages) { language in
-                    Button(action: { viewModel.disable(language) }, label: {
-                        Cell(language: language, isEnabled: true)
-                    })
-                }
-            }
-            Section(header: Text("Hiding")) {
+            Section(header: Text(viewModel.enabledLanguages.isEmpty ? "All" : "Hiding")) {
                 ForEach(viewModel.disabledLanguages) { language in
                     Button(action: { viewModel.enable(language) }, label: {
                         Cell(language: language, isEnabled: false)
@@ -122,6 +105,18 @@ struct LibraryLanguageView: View {
                 languageCodes: Defaults[.libraryFilterLanguageCodes],
                 sortingMode: Defaults[.libraryLanguageSortingMode]
             )
+        }
+        .toolbar {
+            ToolbarItem(placement: .navigationBarTrailing) {
+                Menu {
+                    Picker("Sorting options", selection: $libraryLanguageSortingMode) {
+                        Text("Alphabetically").tag(LibraryLanguageFilterSortingMode.alphabetically)
+                        Text("By Count").tag(LibraryLanguageFilterSortingMode.byCount)
+                    }
+                } label: {
+                    Label("Sort", systemImage: "arrow.up.arrow.down")
+                }
+            }
         }
     }
     
