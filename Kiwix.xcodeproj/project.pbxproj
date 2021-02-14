@@ -107,6 +107,7 @@
 		97A963C4259D38D900496214 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97A963C3259D38D900496214 /* SettingsView.swift */; };
 		97AC121320878F8B004779D1 /* SearchResultsController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9743C30120878C70006981FB /* SearchResultsController.swift */; };
 		97AD87F025D9715000FEDF05 /* LibraryInfoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97AD87EF25D9715000FEDF05 /* LibraryInfoView.swift */; };
+		97AD87F625D9DCF900FEDF05 /* Language.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97AD87F525D9DCF900FEDF05 /* Language.swift */; };
 		97B020F625BC784C0024F743 /* LibraryZimFileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97B020F525BC784C0024F743 /* LibraryZimFileView.swift */; };
 		97B1046F1F8FC63C00488444 /* LibraryMasterController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97B1046E1F8FC63C00488444 /* LibraryMasterController.swift */; };
 		97B3998A24673FE000BC6F5B /* SearchOperation.mm in Sources */ = {isa = PBXBuildFile; fileRef = 97B3998924673FE000BC6F5B /* SearchOperation.mm */; };
@@ -288,6 +289,7 @@
 		97A36C561F8D5FCD0079B452 /* LibraryController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryController.swift; sourceTree = "<group>"; };
 		97A963C3259D38D900496214 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		97AD87EF25D9715000FEDF05 /* LibraryInfoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryInfoView.swift; sourceTree = "<group>"; };
+		97AD87F525D9DCF900FEDF05 /* Language.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Language.swift; sourceTree = "<group>"; };
 		97B020F525BC784C0024F743 /* LibraryZimFileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryZimFileView.swift; sourceTree = "<group>"; };
 		97B1046E1F8FC63C00488444 /* LibraryMasterController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryMasterController.swift; sourceTree = "<group>"; };
 		97B3998824673FE000BC6F5B /* SearchOperation.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SearchOperation.h; sourceTree = "<group>"; };
@@ -597,6 +599,7 @@
 				9779A5AC2456793600F6F6FF /* ZimFileMetaData.mm */,
 				97B3998B2467561900BC6F5B /* SearchResult.h */,
 				97B3998C2467561900BC6F5B /* SearchResult.m */,
+				97AD87F525D9DCF900FEDF05 /* Language.swift */,
 				97974349257BF2B000D30F03 /* OutlineItem.swift */,
 			);
 			path = Entities;
@@ -1077,6 +1080,7 @@
 				97B3998E246759E400BC6F5B /* SearchResult.m in Sources */,
 				97CD2F0424D4FB6F0084C6B5 /* SearchFilterController.swift in Sources */,
 				979F49F7254478D400DE0B56 /* Buttons.swift in Sources */,
+				97AD87F625D9DCF900FEDF05 /* Language.swift in Sources */,
 				9779A5BC2456793600F6F6FF /* OPDSStreamParser.swift in Sources */,
 				972E6F641FA11A6100F5C927 /* RoundedButton.swift in Sources */,
 				9779A5C22456793600F6F6FF /* ZimFileService.mm in Sources */,
