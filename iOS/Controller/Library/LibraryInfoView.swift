@@ -20,7 +20,7 @@ struct LibraryInfoView: View {
     @Default(.backupDocumentDirectory) private var isBackingUpDocumentDirectory
     @ObservedObject private var viewModel = ViewModel()
     
-    private let languageView = LibraryLanguageView()
+    private let languageView = LibraryLanguagesView()
     var dismiss: (() -> Void) = {}
     
     var body: some View {
@@ -98,7 +98,7 @@ struct LibraryInfoView: View {
 
 /// List and update enabled and disabled languages in the library.
 @available(iOS 14.0, *)
-struct LibraryLanguageView: View {
+struct LibraryLanguagesView: View {
     @Default(.libraryLanguageSortingMode) private var libraryLanguageSortingMode
     @ObservedObject private var viewModel = ViewModel()
     
@@ -122,7 +122,7 @@ struct LibraryLanguageView: View {
             }
         }
         .listStyle(InsetGroupedListStyle())
-        .navigationBarTitle("Language", displayMode: .inline)
+        .navigationBarTitle("Languages", displayMode: .inline)
         .onAppear {
             viewModel.load()
             viewModel.update(
@@ -188,6 +188,7 @@ struct LibraryLanguageView: View {
                         )
                     }
             } catch { allLanguages = [] }
+            print(UserDefaults.standard.string(forKey: "libraryLanguageSortingMode"))
         }
         
         /// Update enabled and disabled languages.
