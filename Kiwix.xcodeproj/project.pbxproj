@@ -106,6 +106,7 @@
 		97A36C571F8D5FCD0079B452 /* LibraryController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97A36C561F8D5FCD0079B452 /* LibraryController.swift */; };
 		97A963C4259D38D900496214 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97A963C3259D38D900496214 /* SettingsView.swift */; };
 		97AC121320878F8B004779D1 /* SearchResultsController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9743C30120878C70006981FB /* SearchResultsController.swift */; };
+		97AD87F025D9715000FEDF05 /* LibraryInfoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97AD87EF25D9715000FEDF05 /* LibraryInfoView.swift */; };
 		97B020F625BC784C0024F743 /* LibraryZimFileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97B020F525BC784C0024F743 /* LibraryZimFileView.swift */; };
 		97B1046F1F8FC63C00488444 /* LibraryMasterController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97B1046E1F8FC63C00488444 /* LibraryMasterController.swift */; };
 		97B3998A24673FE000BC6F5B /* SearchOperation.mm in Sources */ = {isa = PBXBuildFile; fileRef = 97B3998924673FE000BC6F5B /* SearchOperation.mm */; };
@@ -286,6 +287,7 @@
 		97A36C4E1F8C21210079B452 /* Kiwix.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Kiwix.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		97A36C561F8D5FCD0079B452 /* LibraryController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryController.swift; sourceTree = "<group>"; };
 		97A963C3259D38D900496214 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		97AD87EF25D9715000FEDF05 /* LibraryInfoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryInfoView.swift; sourceTree = "<group>"; };
 		97B020F525BC784C0024F743 /* LibraryZimFileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryZimFileView.swift; sourceTree = "<group>"; };
 		97B1046E1F8FC63C00488444 /* LibraryMasterController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryMasterController.swift; sourceTree = "<group>"; };
 		97B3998824673FE000BC6F5B /* SearchOperation.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SearchOperation.h; sourceTree = "<group>"; };
@@ -678,6 +680,7 @@
 				978A315725B49149008A03FA /* LibraryCategoryView.swift */,
 				97B020F525BC784C0024F743 /* LibraryZimFileView.swift */,
 				975D916225C5F32300AC8081 /* LibrarySearchResultView.swift */,
+				97AD87EF25D9715000FEDF05 /* LibraryInfoView.swift */,
 				975D916125C5F2CF00AC8081 /* Legacy */,
 			);
 			path = Library;
@@ -1117,6 +1120,7 @@
 				9779A5CC2456793600F6F6FF /* ZimFile.swift in Sources */,
 				9779A5BA2456793600F6F6FF /* OPDSRefreshOperation.swift in Sources */,
 				9779A5BE2456793600F6F6FF /* OPDSStreamParser.mm in Sources */,
+				97AD87F025D9715000FEDF05 /* LibraryInfoView.swift in Sources */,
 				97802D7025789B1800A21352 /* SidebarViewController.swift in Sources */,
 				9779A7B12456796B00F6F6FF /* WebKitHandler.swift in Sources */,
 				97FD2F5F251EA07B0034927C /* FeatureFlags.swift in Sources */,
