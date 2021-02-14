@@ -302,14 +302,14 @@ struct LibraryLanguageView: View {
         List {
             Section(header: Text("Showing")) {
                 ForEach(viewModel.enabledLanguages) { language in
-                    Button(action: { Defaults[.libraryLanguageCodes].remove(language.code) }, label: {
+                    Button(action: { viewModel.hide(language: language) }, label: {
                         Cell(language: language, isShowing: true)
                     })
                 }
             }
             Section(header: Text("Hiding")) {
                 ForEach(viewModel.disabledLanguages) { language in
-                    Button(action: { Defaults[.libraryLanguageCodes].insert(language.code) }, label: {
+                    Button(action: { viewModel.show(language: language) }, label: {
                         Cell(language: language, isShowing: false)
                     })
                 }
@@ -325,7 +325,8 @@ struct LibraryLanguageView: View {
         
         var body: some View {
             HStack {
-                Image(systemName: isShowing ? "checkmark.circle" : "circle").foregroundColor(.secondary)
+                Image(systemName: isShowing ? "checkmark.circle" : "circle")
+                    .foregroundColor(isShowing ? .green : .secondary)
                 Text(language.name).foregroundColor(.primary)
                 Spacer()
                 if let count = language.count { Text("\(count)").foregroundColor(.secondary) }
@@ -353,19 +354,19 @@ struct LibraryLanguageView: View {
                     }
             } catch { allLanguages = [] }
             update(
-                languageCodes: Defaults[.libraryLanguageCodes],
+                languageCodes: Defaults[.libraryFilterLanguageCodes],
                 sortingMode: Defaults[.libraryLanguageSortingMode]
             )
             
             observer = Publishers.CombineLatest(
-                Defaults.publisher(.libraryLanguageCodes),
+                Defaults.publisher(.libraryFilterLanguageCodes),
                 Defaults.publisher(.libraryLanguageSortingMode)
             ).sink { languageCodes, sortingMode in
                 self.update(languageCodes: languageCodes.newValue, sortingMode: sortingMode.newValue)
             }
         }
         
-        func update(languageCodes: Set<String>, sortingMode: LibraryLanguageFilterSortingMode) {
+        func update(languageCodes: [String], sortingMode: LibraryLanguageFilterSortingMode) {
             let languages = allLanguages.sorted { (lhs, rhs) -> Bool in
                 switch sortingMode {
                 case .alphabetically:
@@ -389,6 +390,15 @@ struct LibraryLanguageView: View {
                 self.enabledLanguages = enabledLanguages
                 self.disabledLanguages = disabledLanguages
             }
+            print(self.enabledLanguages)
+        }
+        
+        func show(language: Language) {
+            Defaults[.libraryFilterLanguageCodes] += [language.code]
+        }
+        
+        func hide(language: Language) {
+            Defaults[.libraryFilterLanguageCodes].removeAll(where: { $0 == language.code })
         }
     }
 }
