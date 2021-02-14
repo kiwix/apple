@@ -9,14 +9,15 @@
 import Combine
 import SwiftUI
 
+import Defaults
 import RealmSwift
 
 /// Information about a single zim file in a list view.
 @available(iOS 14.0, *)
 struct LibraryZimFileView: View {
-    @AppStorage("downloadUsingCellular") private var downloadUsingCellular: Bool = false
-    @State private var showingDeleteAlert = false
+    @Default(.downloadUsingCellular) private var downloadUsingCellular
     @ObservedObject private var viewModel: ViewModel
+    @State private var showingDeleteAlert = false
     
     private let zimFile: ZimFile
     var openMainPage: ((String) -> Void) = { _ in }
