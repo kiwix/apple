@@ -224,11 +224,13 @@ struct LibraryLanguagesView: View {
         }
         
         func enable(_ language: Language) {
-            Defaults[.libraryFilterLanguageCodes] += [language.code]
+            UserDefaults.standard.libraryLanguageCodes += [language.code]
+//            Defaults[.libraryFilterLanguageCodes] += [language.code]
         }
         
         func disable(_ language: Language) {
-            Defaults[.libraryFilterLanguageCodes].removeAll(where: { $0 == language.code })
+            UserDefaults.standard.libraryLanguageCodes.removeAll(where: { $0 == language.code })
+//            Defaults[.libraryFilterLanguageCodes].removeAll(where: { $0 == language.code })
         }
     }
 }
