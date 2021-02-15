@@ -168,10 +168,11 @@ struct LibraryLanguagesView: View {
         
         init() {
             observer = Publishers.CombineLatest(
-                Defaults.publisher(.libraryFilterLanguageCodes),
+//                Defaults.publisher(.libraryFilterLanguageCodes),
+                UserDefaults.standard.publisher(for: \.libraryLanguageCodes),
                 Defaults.publisher(.libraryLanguageSortingMode)
             ).sink { [weak self] languageCodes, sortingMode in
-                self?.update(languageCodes: languageCodes.newValue, sortingMode: sortingMode.newValue)
+                self?.update(languageCodes: languageCodes, sortingMode: sortingMode.newValue)
             }
         }
         
@@ -225,12 +226,10 @@ struct LibraryLanguagesView: View {
         
         func enable(_ language: Language) {
             UserDefaults.standard.libraryLanguageCodes += [language.code]
-//            Defaults[.libraryFilterLanguageCodes] += [language.code]
         }
         
         func disable(_ language: Language) {
             UserDefaults.standard.libraryLanguageCodes.removeAll(where: { $0 == language.code })
-//            Defaults[.libraryFilterLanguageCodes].removeAll(where: { $0 == language.code })
         }
     }
 }
