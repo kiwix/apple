@@ -9,17 +9,19 @@
 import Combine
 import SwiftUI
 
-import Defaults
 import RealmSwift
 
 /// Information about a single zim file in a list view.
 @available(iOS 14.0, *)
 struct LibraryZimFileView: View {
-    @Default(.downloadUsingCellular) private var downloadUsingCellular
     @ObservedObject private var viewModel: ViewModel
     @State private var showingDeleteAlert = false
     
     private let zimFile: ZimFile
+    private let downloadUsingCellular = Binding<Bool>(
+        get: { UserDefaults.standard.downloadUsingCellular },
+        set: { UserDefaults.standard.downloadUsingCellular = $0 }
+    )
     var openMainPage: ((String) -> Void) = { _ in }
     var zimFileDeleted: (() -> Void) = {} { didSet { viewModel.zimFileDeleted = zimFileDeleted } }
     
@@ -40,10 +42,10 @@ struct LibraryZimFileView: View {
                 switch viewModel.state {
                 case .remote:
                     if viewModel.hasEnoughDiskSpace {
-                        Toggle("Cellular Data", isOn: $downloadUsingCellular)
+                        Toggle("Cellular Data", isOn: downloadUsingCellular)
                         ActionButton(title: "Download") {
                             DownloadService.shared.start(
-                                zimFileID: zimFile.id, allowsCellularAccess: downloadUsingCellular
+                                zimFileID: zimFile.id, allowsCellularAccess: UserDefaults.standard.downloadUsingCellular
                             )
                         }
                     } else {

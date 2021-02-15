@@ -48,6 +48,11 @@ extension UserDefaults {
         get { return stringArray(forKey: "recentSearchTexts") ?? [] }
     }
     
+    @objc var downloadUsingCellular: Bool {
+        get { return bool(forKey: "downloadUsingCellular") }
+        set { setValue(newValue, forKey: "downloadUsingCellular") }
+    }
+    
     @objc var libraryLanguageCodes: [String] {
         get { return stringArray(forKey: "libraryFilterLanguageCodes") ?? [] }
         set { setValue(newValue, forKey: "libraryFilterLanguageCodes") }
