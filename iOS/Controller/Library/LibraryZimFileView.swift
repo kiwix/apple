@@ -12,7 +12,7 @@ import SwiftUI
 import RealmSwift
 
 /// Information about a single zim file in a list view.
-@available(iOS 14.0, *)
+@available(iOS 13.0, *)
 struct LibraryZimFileView: View {
     @ObservedObject private var viewModel: ViewModel
     @State private var showingDeleteAlert = false
@@ -59,7 +59,7 @@ struct LibraryZimFileView: View {
                     Text(viewModel.state.description)
                     cancelButton
                 case .downloadInProgress:
-                    if let progress = viewModel.downloadProgress {
+                    if #available(iOS 14.0, *), let progress = viewModel.downloadProgress {
                         ProgressView(progress)
                     } else {
                         Text("Downloading...")
@@ -120,7 +120,7 @@ struct LibraryZimFileView: View {
                 }
             }
         }
-        .listStyle(InsetGroupedListStyle())
+        .insetGroupedListStyle()
         .navigationBarTitle(zimFile.title)
         .alert(isPresented: $showingDeleteAlert) {
             let message: String = {

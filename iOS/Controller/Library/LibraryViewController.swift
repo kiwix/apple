@@ -80,31 +80,40 @@ class LibraryViewController: UISplitViewController, UISplitViewControllerDelegat
     }
     
     func showCategory(_ category: ZimFile.Category) {
-        if #available(iOS 14.0, *) {
-            let controller = UIHostingController(rootView: LibraryCategoryView(category: category))
-            controller.navigationItem.title = category.description
-            controller.navigationItem.largeTitleDisplayMode = .never
-            let navigationController = UINavigationController(rootViewController: controller)
-            controller.rootView.zimFileTapped = { metadata in
-                let controller = UIHostingController(rootView: LibraryZimFileView(id: metadata.id))
-                controller.rootView?.zimFileDeleted = { navigationController.popViewController(animated: true) }
-                navigationController.pushViewController(controller, animated: true)
+        let controller = UIHostingController(rootView: LibraryCategoryView(category: category))
+        controller.navigationItem.title = category.description
+        controller.navigationItem.largeTitleDisplayMode = .never
+        let navigationController = UINavigationController(rootViewController: controller)
+        controller.rootView.zimFileTapped = { metadata in
+            let controller = UIHostingController(rootView: LibraryZimFileView(id: metadata.id))
+            controller.rootView?.openMainPage = { [weak self] zimFileID in
+                guard let navigationController = self?.presentingViewController as? UINavigationController,
+                      let controller = navigationController.topViewController as? RootViewController else { return }
+                controller.openMainPage(zimFileID: zimFileID)
+                self?.dismiss(animated: true)
             }
-            showDetailViewController(navigationController, sender: nil)
-        } else {
-            // Fallback on earlier versions
+            controller.rootView?.zimFileDeleted = { [weak navigationController] in
+                navigationController?.popViewController(animated: true)
+            }
+            controller.navigationItem.title = metadata.title
+            navigationController.pushViewController(controller, animated: true)
         }
+        showDetailViewController(navigationController, sender: nil)
     }
     
     func showZimFile(_ metadata: ZimFileView.ViewModel) {
-        if #available(iOS 14.0, *) {
-            let controller = UIHostingController(rootView: LibraryZimFileView(id: metadata.id))
-            controller.navigationItem.title = metadata.title
-            controller.navigationItem.largeTitleDisplayMode = .never
-            showDetailViewController(UINavigationController(rootViewController: controller), sender: nil)
-        } else {
-            // Fallback on earlier versions
+        let controller = UIHostingController(rootView: LibraryZimFileView(id: metadata.id))
+        controller.rootView?.openMainPage = { [weak self] zimFileID in
+            guard let navigationController = self?.presentingViewController as? UINavigationController,
+                  let controller = navigationController.topViewController as? RootViewController else { return }
+            controller.openMainPage(zimFileID: zimFileID)
+            self?.dismiss(animated: true)
         }
+        controller.rootView?.zimFileDeleted = { [weak self] in
+            self?.showCategory(.wikipedia)
+        }
+        controller.navigationItem.title = metadata.title
+        showDetailViewController(UINavigationController(rootViewController: controller), sender: nil)
     }
 }
 
