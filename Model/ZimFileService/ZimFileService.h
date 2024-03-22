@@ -8,6 +8,7 @@
 
 #import <Foundation/Foundation.h>
 #import "ZimFileMetaData.h"
+#import "kiwix/book.h"
 
 @interface ZimFileService : NSObject
 
@@ -23,6 +24,7 @@
 - (void)close:(NSUUID *_Nonnull)zimFileID NS_REFINED_FOR_SWIFT;
 - (NSArray *_Nonnull)getReaderIdentifiers NS_REFINED_FOR_SWIFT;
 - (nonnull void *) getArchives;
+- (kiwix::Book) getBookBy: (nonnull NSUUID*) fileZimID NS_REFINED_FOR_SWIFT;
 
 # pragma mark - Metadata
 
