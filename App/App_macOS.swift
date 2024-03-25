@@ -102,6 +102,15 @@ struct RootView: View {
                     }
                 }
             }
+            .safeAreaInset(edge: .bottom) {
+                Link(destination: URL(string: "donations.url".localized)!) {
+                    HStack {
+                        Image(systemName: "heart")
+                        Text("enum.navigation_item.donations".localized)
+                            .foregroundColor(.primary)
+                    }
+                    .padding()}
+            }
             .frame(minWidth: 150)
             .toolbar {
                 Button {

@@ -228,6 +228,7 @@ struct Settings: View {
                               appStoreID: Brand.appStoreId)
                 UIApplication.shared.open(url)
             }
+            Link("settings.miscellaneous.button.donate".localized, destination: URL(string: "donations.url".localized)!)
             NavigationLink("settings.miscellaneous.navigation.about".localized) { About() }
         }
     }
