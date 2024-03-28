@@ -219,6 +219,24 @@ final class BrowserViewModel: NSObject, ObservableObject,
         }
     }
 
+    // MARK: - New Tab Creation
+    
+#if os(macOS)
+    private func createNewTab(url: URL) -> Bool {
+        guard let currentWindow = NSApp.keyWindow else { return false }
+        guard let windowController = currentWindow.windowController else { return false }
+        // store the new url in a static way
+        BrowserViewModel.urlForNewTab = url
+        // this creates a new BrowserViewModel
+        windowController.newWindowForTab(self)
+        // now reset the static url to nil, as the new BrowserViewModel already has it
+        BrowserViewModel.urlForNewTab = nil
+        guard let newWindow = NSApp.keyWindow, currentWindow != newWindow else { return false }
+        currentWindow.addTabbedWindow(newWindow, ordered: .above)
+        return true
+    }
+#endif
+    
     // MARK: - WKNavigationDelegate
 
     func webView(
@@ -226,7 +244,21 @@ final class BrowserViewModel: NSObject, ObservableObject,
         decidePolicyFor navigationAction: WKNavigationAction,
         decisionHandler: @escaping (WKNavigationActionPolicy) -> Void
     ) {
-        guard let url = navigationAction.request.url else { decisionHandler(.cancel); return }
+        guard let url = navigationAction.request.url else {
+            decisionHandler(.cancel)
+            return
+        }
+        
+#if os(macOS)
+        // detect cmd + click event
+        if navigationAction.modifierFlags.contains(.command) {
+            if createNewTab(url: url) {
+                decisionHandler(.cancel)
+                return
+            }
+        }
+#endif
+        
         if url.isKiwixURL, let redirectedURL = ZimFileService.shared.getRedirectedURL(url: url) {
             if webView.url != redirectedURL {
                 DispatchQueue.main.async { webView.load(URLRequest(url: redirectedURL)) }
@@ -318,17 +350,7 @@ final class BrowserViewModel: NSObject, ObservableObject,
             return nil
         }
 
-        // create new tab
-        guard let currentWindow = NSApp.keyWindow,
-              let windowController = currentWindow.windowController else { return nil }
-        // store the new url in a static way
-        BrowserViewModel.urlForNewTab = newUrl
-        // this creates a new BrowserViewModel
-        windowController.newWindowForTab(self)
-        // now reset the static url to nil, as the new BrowserViewModel already has it
-        BrowserViewModel.urlForNewTab = nil
-        guard let newWindow = NSApp.keyWindow, currentWindow != newWindow else { return nil }
-        currentWindow.addTabbedWindow(newWindow, ordered: .above)
+        _ = createNewTab(url: newUrl)
         return nil
     }
 #endif
