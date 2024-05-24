@@ -110,6 +110,12 @@ extension ZimFileService {
         return getURLContent(zimFileID: zimFileID, contentPath: url.path)
     }
 
+    func getMimeType(url: URL) -> String? {
+        guard let zimFileID = url.host,
+              let zimFileUUID = UUID(uuidString: zimFileID) else { return nil }
+        return __getMimeType(zimFileUUID, contentPath: url.path)
+    }
+
     func getURLContent(url: URL, start: UInt, end: UInt) -> URLContent? {
         guard let zimFileID = url.host else { return nil }
         return getURLContent(zimFileID: zimFileID, contentPath: url.path, start: start, end: end)
@@ -129,7 +135,14 @@ extension ZimFileService {
               let start = content["start"] as? UInt,
               let end = content["end"] as? UInt,
               let size = content["size"] as? UInt else { return nil }
-        return URLContent(data: data, mime: mime, start: start, end: end, size: size)
+        return URLContent(
+            data: data,
+            mime: mime,
+            start: start,
+            end: end,
+            size: size,
+            lastModified: content["modificationDate"] as? Date
+        )
     }
 }
 

@@ -153,6 +153,22 @@ struct URLContent {
     let start: UInt
     let end: UInt
     let size: UInt
+    let lastModified: Date?
+
+    var rangeSize: UInt {
+        if start == 0 && end + 1 >= size {
+            return size
+        }
+        return end - start + 1
+    }
+
+    func contentRange(from requestedStart: UInt, requestedEnd: UInt) -> String {
+        if requestedStart == 0, requestedEnd == 0 {
+            return "bytes \(start)-\(end)/\(size)"
+        } else {
+            return "bytes \(requestedStart)-\(requestedEnd)/\(size)"
+        }
+    }
 
     var httpContentType: String {
         if mime == "text/plain" {
@@ -160,6 +176,11 @@ struct URLContent {
         } else {
             return mime
         }
+    }
+
+    var eTag: String? {
+        guard let lastModified else { return nil }
+        return "\"\(lastModified.timeIntervalSince1970)\""
     }
 }
 

@@ -39,7 +39,7 @@
 
 #pragma mark - init
 
-- (instancetype)init {
+- (instancetype) init {
     self = [super init];
     if (self) {
         self.archives = new std::unordered_map<std::string, zim::Archive>();
@@ -50,7 +50,7 @@
     return self;
 }
 
-+ (ZimFileService *)sharedInstance {
++ (ZimFileService *) sharedInstance {
     static ZimFileService *sharedInstance = nil;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
@@ -59,7 +59,7 @@
     return sharedInstance;
 }
 
-- (void)dealloc {
+- (void) dealloc {
     delete self.archives;
     for (NSUUID *zimFileID in self.fileURLs) {
         [self.fileURLs[zimFileID] stopAccessingSecurityScopedResource];
@@ -68,7 +68,7 @@
 
 #pragma mark - Reader Management
 
-- (void)open:(NSURL *)url {
+- (void) open:(NSURL *)url {
     try {
         // if url does not ends with "zim", skip it
         NSString *pathExtension = [[url pathExtension] lowercaseString];
@@ -94,13 +94,13 @@
     }
 }
 
-- (void)close:(NSUUID *)zimFileID {
+- (void) close:(NSUUID *)zimFileID {
     self.archives->erase([self zimfileID_C: zimFileID]);
     [self.fileURLs[zimFileID] stopAccessingSecurityScopedResource];
     [self.fileURLs removeObjectForKey:zimFileID];
 }
 
-- (NSArray *)getReaderIdentifiers {
+- (NSArray *) getReaderIdentifiers {
     return [self.fileURLs allKeys];
 }
 
@@ -110,7 +110,7 @@
 
 # pragma mark - Metadata
 
-+ (ZimFileMetaData *)getMetaDataWithFileURL:(NSURL *)url {
++ (ZimFileMetaData *) getMetaDataWithFileURL:(NSURL *)url {
     ZimFileMetaData *metaData = nil;
     [url startAccessingSecurityScopedResource];
     try {
@@ -122,9 +122,26 @@
     return metaData;
 }
 
+# pragma mark - ZIM File date
+- (NSDate *_Nullable) getModificationDateOf: (NSUUID *_Nonnull) zimFileID {
+    NSURL *fileURL = [self getFileURL: zimFileID];
+    if (fileURL == nil) {
+        return nil;
+    }
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    NSError *error = nil;
+    NSDictionary *fileAttributes = [fileManager attributesOfItemAtPath:[fileURL path] error:&error];
+    if (fileAttributes) {
+        return [fileAttributes objectForKey:NSFileModificationDate];
+    } else {
+        NSLog(@"Error retrieving file modification date: %@", [error localizedDescription]);
+        return nil;
+    }
+}
+
 # pragma mark - URL Handling
 
-- (NSURL *)getFileURL:(NSUUID *)zimFileID {
+- (NSURL *_Nullable) getFileURL:(NSUUID *_Nonnull)zimFileID {
     return self.fileURLs[zimFileID];
 }
 
@@ -140,7 +157,7 @@
     }
 }
 
-- (NSString *)getMainPagePath:(NSUUID *)zimFileID {
+- (NSString *) getMainPagePath:(NSUUID *)zimFileID {
     zim::Archive *archive = [self archiveBy: zimFileID];
     if (archive == nil) { return nil; }
     try {
@@ -152,7 +169,7 @@
     }
 }
 
-- (NSString *)getRandomPagePath:(NSUUID *)zimFileID {
+- (NSString *) getRandomPagePath:(NSUUID *)zimFileID {
     zim::Archive *archive = [self archiveBy: zimFileID];
     if (archive == nil) { return nil; }
     try {
@@ -164,7 +181,7 @@
     }
 }
 
-- (NSNumber* _Nullable)getContentSize:(NSUUID *)zimFileID contentPath:(NSString *)contentPath {
+- (NSNumber* _Nullable) getContentSize:(NSUUID *)zimFileID contentPath:(NSString *)contentPath {
     if ([contentPath hasPrefix:@"/"]) {
         contentPath = [contentPath substringFromIndex:1];
     }
@@ -179,8 +196,23 @@
     }
 }
 
-- (NSDictionary *)getContent:(NSUUID *)zimFileID contentPath:(NSString *)contentPath
-                       start:(NSUInteger)start end:(NSUInteger)end {
+- (NSString * _Nullable) getMimeType:(NSUUID *)zimFileID contentPath:(NSString *)contentPath {
+    zim::Archive *archive = [self archiveBy: zimFileID];
+    if(archive == nil) { return nil; }
+    if ([contentPath hasPrefix:@"/"]) {
+        contentPath = [contentPath substringFromIndex:1];
+    }
+    try {
+        zim::Entry entry = archive->getEntryByPath([contentPath cStringUsingEncoding:NSUTF8StringEncoding]);
+        zim::Item item = entry.getItem(entry.isRedirect());
+        return [NSString stringWithUTF8String: item.getMimetype().c_str()];
+    } catch (std::exception) {
+        return nil;
+    }
+}
+
+- (NSDictionary *_Nullable) getContent:(NSUUID *)zimFileID contentPath:(NSString *)contentPath
+                                 start:(NSUInteger)start end:(NSUInteger)end {
     if ([contentPath hasPrefix:@"/"]) {
         contentPath = [contentPath substringFromIndex:1];
     }
@@ -203,7 +235,8 @@
             @"mime": [NSString stringWithUTF8String:item.getMimetype().c_str()],
             @"start": [NSNumber numberWithUnsignedLongLong:start],
             @"end": [NSNumber numberWithUnsignedLongLong:start + blob.size() - 1],
-            @"size": [NSNumber numberWithUnsignedLongLong:item.getSize()]
+            @"size": [NSNumber numberWithUnsignedLongLong:item.getSize()],
+            @"modificationDate": [self getModificationDateOf: zimFileID]
         };
     } catch (std::exception) {
         return nil;
