@@ -122,6 +122,16 @@
     return metaData;
 }
 
+- (kiwix::Book) getBookBy:(nonnull NSUUID *) fileZimID {
+    kiwix::Book book = kiwix::Book();
+    try {
+        NSURL *fileURL = [ZimFileService.sharedInstance getFileURL: fileZimID];
+        book.update(zim::Archive([fileURL fileSystemRepresentation]));
+    } catch (std::exception e) { }
+    return book;
+}
+
+
 # pragma mark - URL Handling
 
 - (NSURL *)getFileURL:(NSUUID *)zimFileID {

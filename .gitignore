@@ -1,6 +1,7 @@
 AppStore/screenshots
 CoreKiwix.xcframework
 *.zim
+!Tests/TestResources/test_small.zim
 
 # Xcode
 #

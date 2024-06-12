@@ -7,6 +7,8 @@
 #import "ZimFileMetaData.h"
 #import "SearchOperation.h"
 #import "SearchResult.h"
+#import "LibBookMarksBridge.h"
+#import "LibBookmark.h"
 
 
 NS_INLINE NSException * _Nullable objCTryBlock(void(^_Nonnull tryBlock)(void)) {
