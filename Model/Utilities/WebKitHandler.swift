@@ -16,6 +16,10 @@
 import os
 import WebKit
 
+enum RangeRequestError: Error {
+    case invalidRange
+}
+
 /// Skipping handling for HTTP 206 Partial Content
 /// For video playback, WebKit makes a large amount of requests with small byte range (e.g. 8 bytes)
 /// to retrieve content of the video.
@@ -82,18 +86,29 @@ final class KiwixURLSchemeHandler: NSObject, WKURLSchemeHandler {
             return
         }
         guard let metaData = await contentMetaData(for: url) else {
-            sendHTTP404Response(urlSchemeTask, url: url)
+            sendHTTPErrorResponse(urlSchemeTask, url: url, status: .code404)
+            return
+        }
+        let requestedRange: ClosedRange<UInt>?
+        do {
+            requestedRange = try rangeFrom(request)
+        } catch {
+            sendHTTPErrorResponse(urlSchemeTask, url: url, status: .code400)
             return
         }
 
-        guard let dataStream = await dataStream(for: url, metaData: metaData) else {
-            sendHTTP404Response(urlSchemeTask, url: url)
+        guard let dataStream = await dataStream(for: url, metaData: metaData, requestedRange: requestedRange) else {
+            sendHTTPErrorResponse(urlSchemeTask, url: url, status: .code404)
             return
         }
         
         // send the headers
         guard isStartedFor(urlSchemeTask.hash) else { return }
-        guard let responseHeaders = http200Response(urlSchemeTask, url: url, metaData: metaData) else {
+        guard let responseHeaders = HTTPSuccess.response(
+            url: url,
+            metaData: metaData,
+            requestedRange: requestedRange
+        ) else {
             urlSchemeTask.didFailWithError(URLError(.badServerResponse, userInfo: ["url": url]))
             stopFor(urlSchemeTask.hash)
             return
@@ -112,32 +127,53 @@ final class KiwixURLSchemeHandler: NSObject, WKURLSchemeHandler {
         stopFor(urlSchemeTask.hash)
     }
 
+    // MARK: Range request detection
+
+    private func rangeFrom(_ request: URLRequest) throws -> ClosedRange<UInt>? {
+        guard let range = request.allHTTPHeaderFields?["Range"] as? String else {
+            return nil
+        }
+        let parts = range.components(separatedBy: ["=", "-"])
+        guard parts.count > 1, let rangeStart = UInt(parts[1]) else {
+            throw RangeRequestError.invalidRange
+        }
+        let rangeEnd = parts.count == 3 ? UInt(parts[2]) ?? 0 : 0
+        return rangeStart...rangeEnd+1
+    }
+
     // MARK: Reading content
 
-    private func dataStream(for url: URL, metaData: URLContentMetaData) async -> DataStream<URLContent>? {
+    private func dataStream(
+        for url: URL,
+        metaData: URLContentMetaData,
+        requestedRange: ClosedRange<UInt>?
+    ) async -> DataStream<URLContent>? {
         let dataProvider: any DataProvider<URLContent>
-        let ranges: [ClosedRange<UInt>] // the list of ranges we should use to stream data
-        let size2MB: UInt = 2097152 // 2MB
+        let ranges: [ClosedRange<UInt>] = rangesForDataStreaming(metaData, requestedRange: requestedRange)
         if metaData.isMediaType, let directAccess = await directAccessInfo(for: url) {
             dataProvider = ZimDirectContentProvider(directAccess: directAccess,
                                                     contentSize: metaData.size)
-            ranges = ByteRanges.rangesFor(
-                contentLength: metaData.size,
-                rangeSize: size2MB
-            )
         } else {
             dataProvider = ZimContentProvider(for: url)
-            // if the data is larger than 2MB, read it "in chunks"
-            if metaData.size > size2MB {
-                ranges = ByteRanges.rangesFor(
-                    contentLength: metaData.size,
-                    rangeSize: size2MB
-                )
-            } else { // use the full range and read it in one go
-                ranges = [0...metaData.size]
-            }
         }
         return DataStream(dataProvider: dataProvider, ranges: ranges)
+    }
+    
+    /// The list of ranges we should use to stream data
+    /// - Parameter metaData: the URLContentMetaData from the ZIM file content
+    /// - Returns: If the data is larger than 2MB, it returns the "chunks" that should be read,
+    /// otherwise returns the full range 0...metaData.size
+    private func rangesForDataStreaming(_ metaData: URLContentMetaData, requestedRange: ClosedRange<UInt>?) -> [ClosedRange<UInt>] {
+        let size2MB: UInt = 2_097_152 // 2MB
+        if let requested = requestedRange {
+            return ByteRanges.rangesFor(
+                contentLength: requested.upperBound - requested.lowerBound,
+                rangeSize: size2MB,
+                start: requested.lowerBound
+            )
+        } else {
+            return ByteRanges.rangesFor(contentLength: metaData.size, rangeSize: size2MB)
+        }
     }
 
     private func contentMetaData(for url: URL) async -> URLContentMetaData? {
@@ -159,6 +195,7 @@ final class KiwixURLSchemeHandler: NSObject, WKURLSchemeHandler {
     }
 
     // MARK: Writing content
+    
     private func writeContent(
         to urlSchemeTask: WKURLSchemeTask,
         from dataStream: DataStream<URLContent>
@@ -171,33 +208,27 @@ final class KiwixURLSchemeHandler: NSObject, WKURLSchemeHandler {
         }
     }
 
-    // MARK: Success responses
-    private func http200Response(
-        _ urlSchemeTask: WKURLSchemeTask,
-        url: URL,
-        metaData: URLContentMetaData
-    ) -> HTTPURLResponse? {
-        let headers = ["Content-Type": metaData.httpContentType,
-                       "Content-Length": "\(metaData.size)"]
-        return HTTPURLResponse(
-            url: url,
-            statusCode: 200,
-            httpVersion: "HTTP/1.1",
-            headerFields: headers
-        )
-    }
-
-    // MARK: Error responses
+    // MARK: Error response
 
     @MainActor
-    private func sendHTTP404Response(_ urlSchemeTask: WKURLSchemeTask, url: URL) {
+    private func sendHTTPErrorResponse(_ urlSchemeTask: WKURLSchemeTask, url: URL, status: StatusCode) {
         guard isStartedFor(urlSchemeTask.hash) else { return }
-        if let response = HTTPURLResponse(url: url, statusCode: 404, httpVersion: "HTTP/1.1", headerFields: nil) {
+        if let response = HTTPURLResponse(
+            url: url,
+            statusCode: status.rawValue,
+            httpVersion: "HTTP/1.1",
+            headerFields: nil
+        ) {
             urlSchemeTask.didReceive(response)
             urlSchemeTask.didFinish()
         } else {
             urlSchemeTask.didFailWithError(URLError(.badServerResponse, userInfo: ["url": url]))
         }
         stopFor(urlSchemeTask.hash)
+    }
+
+    private enum StatusCode: Int {
+        case code400 = 400
+        case code404 = 404
     }
 }

@@ -140,7 +140,13 @@ extension ZimFileService {
               let mime = content["mime"] as? String,
               let size = content["size"] as? UInt,
               let title = content["title"] as? String else { return nil }
-        return URLContentMetaData(mime: mime, size: size, zimTitle: title)
+        let zimFileModificationDate = content["zimFileDate"] as? Date
+        return URLContentMetaData(
+            mime: mime,
+            size: size,
+            zimTitle: title,
+            lastModified: zimFileModificationDate
+        )
     }
 
     func getURLContent(zimFileID: String, contentPath: String, start: UInt = 0, end: UInt = 0) -> URLContent? {

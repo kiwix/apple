@@ -42,6 +42,23 @@ final class DataStreamTests: XCTestCase {
         XCTAssertEqual(data, outData)
     }
 
+    func test_small_data_with_large_rangeSize_returns_in_one_chunk() async throws {
+        let data = "small test data".data(using: .utf8)!
+        let dataStream = DataStream(
+            dataProvider: MockDataProvider(data: data),
+            ranges: ByteRanges.rangesFor(contentLength: UInt(data.count),
+                                         rangeSize: 2_000_000)
+        )!
+        let exp = expectation(description: "data in one chunk")
+        exp.expectedFulfillmentCount = 1
+        for try await subData in dataStream {
+            // make sure the first chunk is already matching the full expected data
+            XCTAssertEqual(subData, data)
+            exp.fulfill()
+        }
+        await fulfillment(of: [exp], timeout: 0)
+    }
+
     func test_large_data() async throws {
         var largeString = ""
         let value = UUID().uuidString

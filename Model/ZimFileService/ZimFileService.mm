@@ -179,7 +179,8 @@
         return @{
             @"mime": [NSString stringWithUTF8String:item.getMimetype().c_str()],
             @"size": [NSNumber numberWithUnsignedLongLong:item.getSize()],
-            @"title": [NSString stringWithUTF8String:item.getTitle().c_str()]
+            @"title": [NSString stringWithUTF8String:item.getTitle().c_str()],
+            @"zimFileDate": [self getModificationDateOf: zimFileID]
         };
     } catch (std::exception) {
         return nil;
@@ -245,6 +246,23 @@
     if (archive == nil) { throw std::exception(); }
     zim::Entry entry = archive->getEntryByPath([contentPath cStringUsingEncoding:NSUTF8StringEncoding]);
     return entry.getItem(entry.isRedirect());
+}
+
+/// get the modification date of the ZIM file itself
+- (NSDate *_Nullable) getModificationDateOf: (NSUUID *_Nonnull) zimFileID {
+    NSURL *fileURL = [self getFileURL: zimFileID];
+    if (fileURL == nil) {
+        return nil;
+    }
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    NSError *error = nil;
+    NSDictionary *fileAttributes = [fileManager attributesOfItemAtPath:[fileURL path] error:&error];
+    if (fileAttributes) {
+        return [fileAttributes objectForKey:NSFileModificationDate];
+    } else {
+        NSLog(@"Error retrieving file modification date: %@", [error localizedDescription]);
+        return nil;
+    }
 }
 
 @end
