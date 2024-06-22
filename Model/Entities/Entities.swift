@@ -170,6 +170,10 @@ struct URLContentMetaData {
     var isTextType: Bool {
         mime.hasPrefix("text/")
     }
+
+    var isPDFType: Bool {
+        mime.hasSuffix("/pdf")
+    }
 }
 
 struct URLContent {

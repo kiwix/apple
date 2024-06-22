@@ -22,6 +22,7 @@ import os
 
 import OrderedCollections
 import CoreKiwix
+import PDFKit
 
 // swiftlint:disable file_length
 // swiftlint:disable:next type_body_length
@@ -608,15 +609,31 @@ final class BrowserViewModel: NSObject, ObservableObject,
             let bookmark = Bookmark(context: context)
             bookmark.articleURL = url
             bookmark.created = Date()
-            if let parser = try? HTMLParser(url: url) {
-                bookmark.title = parser.title ?? ""
-                bookmark.snippet = parser.getFirstSentence(languageCode: nil)?.string
-                guard let zimFileID = UUID(uuidString: url.host ?? ""),
-                      let zimFile = try? context.fetch(ZimFile.fetchRequest(fileID: zimFileID)).first else { return }
-                bookmark.zimFile = zimFile
+            guard let zimFileID = UUID(uuidString: url.host ?? ""),
+                  let zimFile = try? context.fetch(ZimFile.fetchRequest(fileID: zimFileID)).first,
+                  let metaData = ZimFileService.shared.getContentMetaData(url: url) else { return }
+
+            bookmark.zimFile = zimFile
+            if metaData.isTextType,
+               let parser = try? HTMLParser(url: url) {
+                bookmark.title = parser.title ?? metaData.zimTitle
                 if let imagePath = parser.getFirstImagePath() {
                     bookmark.thumbImageURL = URL(zimFileID: zimFileID.uuidString, contentPath: imagePath)
                 }
+                bookmark.snippet = parser.getFirstSentence(languageCode: nil)?.string
+            } else if metaData.isPDFType,
+                      let pdfData = ZimFileService.shared.getURLContent(url: url)?.data,
+                      let parser = PDFDocument(data: pdfData) {
+
+                let pdfTitle = parser.documentAttributes?[PDFDocumentAttribute.titleAttribute] as? String
+                bookmark.title = pdfTitle ?? metaData.zimTitle
+
+                if let firstPage = parser.page(at: 0),
+                   let pdfSnippetSubString = firstPage.string?.split(separator: ".").first {
+                    bookmark.snippet = String(pdfSnippetSubString)
+                }
+            } else {
+                bookmark.title = metaData.zimTitle
             }
             try? context.save()
         }
