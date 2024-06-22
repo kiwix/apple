@@ -1,10 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="21754" systemVersion="22F66" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="22758" systemVersion="23F79" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
     <entity name="Bookmark" representedClassName=".Bookmark" syncable="YES">
         <attribute name="articleURL" attributeType="URI"/>
         <attribute name="created" attributeType="Date" usesScalarValueType="NO"/>
-        <attribute name="snippet" optional="YES" attributeType="String" spotlightIndexingEnabled="YES"/>
-        <attribute name="thumbImageURL" optional="YES" attributeType="URI"/>
         <attribute name="title" attributeType="String" spotlightIndexingEnabled="YES"/>
         <relationship name="zimFile" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="ZimFile" inverseName="bookmarks" inverseEntity="ZimFile"/>
         <uniquenessConstraints>

@@ -46,7 +46,6 @@
 "external_link_handler.alert.not_loading.description" = "Tapnjena je bila zunanja povezava, vendar vam trenutna nastavitev ne omogoča njenega prenosa.";
 "file_import.alert.no_open.title" = "Datoteke ni mogoče odpreti";
 "file_import.alert.no_open.message" = "%@ ni mogoče odpreti.";
-"article_cell.no_snippet.label" = "Ni delčka";
 "attribute.detail.unknown" = "Neznano";
 "download_task_cell.status.failed" = "Spodletelo";
 "download_task_cell.status.downloading" = "Prenašam ...";

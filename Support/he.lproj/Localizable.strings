@@ -53,7 +53,6 @@
 "external_link_handler.alert.not_loading.description" = "נלחץ קישור חיצוני. עם זאת, ההגדרה הנוכחית שלך לא מאפשרת לטעון אותו.";
 "file_import.alert.no_open.title" = "לא ניתן לפתוח את הקובץ";
 "file_import.alert.no_open.message" = "לא ניתן לפתוח את %@.";
-"article_cell.no_snippet.label" = "אין קטע גזור";
 "attribute.detail.unknown" = "לא ידוע";
 "download_task_cell.status.failed" = "נכשל";
 "download_task_cell.status.downloading" = "בהורדה...";

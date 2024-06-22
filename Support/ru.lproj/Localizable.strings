@@ -57,7 +57,6 @@
 "external_link_handler.alert.not_loading.description" = "Внешняя ссылка прослушивается. Однако ваши текущие настройки не позволяют его загрузить.";
 "file_import.alert.no_open.title" = "Невозможно открыть файл";
 "file_import.alert.no_open.message" = "%@ невозможно открыть.";
-"article_cell.no_snippet.label" = "Нет фрагмента";
 "attribute.detail.unknown" = "Неизвестно";
 "download_task_cell.status.failed" = "Не удалось";
 "download_task_cell.status.downloading" = "Загрузка...";

@@ -53,7 +53,6 @@
 "external_link_handler.alert.not_loading.description" = "Ein externer Link wird aktiviert. Ihre aktuelle Einstellung lässt jedoch das Öffnen nicht zu.";
 "file_import.alert.no_open.title" = "Kann Datei nicht öffnen";
 "file_import.alert.no_open.message" = "%@ kann nicht geöffnet werden.";
-"article_cell.no_snippet.label" = "Kein Treffer";
 "attribute.detail.unknown" = "Unbekannt";
 "download_task_cell.status.failed" = "Fehlgeschlagen";
 "download_task_cell.status.downloading" = "Herunterladen …";

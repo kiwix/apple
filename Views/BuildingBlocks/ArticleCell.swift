@@ -22,24 +22,17 @@ struct ArticleCell: View {
     let title: String
     let snippet: NSAttributedString?
     let zimFile: ZimFile?
-    let alwaysShowSnippet: Bool
 
     init(bookmark: Bookmark) {
         self.title = bookmark.title
-        if let snippet = bookmark.snippet {
-            self.snippet = NSAttributedString(string: snippet)
-        } else {
-            self.snippet = nil
-        }
+        self.snippet = nil
         self.zimFile = bookmark.zimFile
-        self.alwaysShowSnippet = true
     }
 
     init(result: SearchResult, zimFile: ZimFile?) {
         self.title = result.title
         self.snippet = result.snippet
         self.zimFile = zimFile
-        self.alwaysShowSnippet = false
     }
 
     var body: some View {
@@ -50,8 +43,6 @@ struct ArticleCell: View {
                 Group {
                     if let snippet = snippet {
                         Text(AttributedString(snippet)).lineLimit(4)
-                    } else if alwaysShowSnippet {
-                        Text("article_cell.no_snippet.label".localized).foregroundColor(.secondary)
                     }
                 }.font(.caption).multilineTextAlignment(.leading)
                 Spacer(minLength: 0)
