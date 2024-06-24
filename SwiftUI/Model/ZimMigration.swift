@@ -68,7 +68,6 @@ enum ZimMigration {
             if let newArticleURL = bookmark.articleURL.updateHost(to: newHost) {
                 bookmark.articleURL = newArticleURL
             }
-            bookmark.thumbImageURL = bookmark.thumbImageURL?.updateHost(to: newHost)
         }
         fromZim.tabs.forEach { (tab: Tab) in
             tab.zimFile = toZim

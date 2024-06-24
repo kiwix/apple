@@ -52,7 +52,6 @@
 "external_link_handler.alert.not_loading.description" = "Допрена е надворешна врска. Сепак, вашата моментална поставка не ѝ дозволува да се вчита.";
 "file_import.alert.no_open.title" = "Не можам да ја отворам податотеката";
 "file_import.alert.no_open.message" = "%@ не може да се отвори.";
-"article_cell.no_snippet.label" = "Нема исечок";
 "attribute.detail.unknown" = "Непознато";
 "download_task_cell.status.failed" = "Неуспешно";
 "download_task_cell.status.downloading" = "Преземам...";

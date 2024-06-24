@@ -78,9 +78,6 @@ struct Bookmarks: View {
 
     private static func buildPredicate(searchText: String) -> NSPredicate? {
         guard !searchText.isEmpty else { return nil }
-        return NSCompoundPredicate(orPredicateWithSubpredicates: [
-            NSPredicate(format: "title CONTAINS[cd] %@", searchText),
-            NSPredicate(format: "snippet CONTAINS[cd] %@", searchText)
-        ])
+        return NSPredicate(format: "title CONTAINS[cd] %@", searchText)
     }
 }

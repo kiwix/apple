@@ -62,7 +62,6 @@
 "external_link_handler.alert.not_loading.description" = "Un lien externe est tapé. Toutefois, votre paramétrage actuel ne permet pas de le charger.";
 "file_import.alert.no_open.title" = "Impossible d’ouvrir le fichier !";
 "file_import.alert.no_open.message" = "%@ ne peut pas être ouvert.";
-"article_cell.no_snippet.label" = "Aucun extrait";
 "attribute.detail.unknown" = "Inconnu";
 "download_task_cell.status.failed" = "Échec";
 "download_task_cell.status.downloading" = "Téléchargement...";

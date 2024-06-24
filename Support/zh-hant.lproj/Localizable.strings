@@ -53,7 +53,6 @@
 "external_link_handler.alert.not_loading.description" = "有點擊到外部連結，但是您目前的設定不允許載入該連結。";
 "file_import.alert.no_open.title" = "無法開啟檔案";
 "file_import.alert.no_open.message" = "無法開啟%@。";
-"article_cell.no_snippet.label" = "沒有片段";
 "attribute.detail.unknown" = "不明";
 "download_task_cell.status.failed" = "失敗";
 "download_task_cell.status.downloading" = "正在下載…";

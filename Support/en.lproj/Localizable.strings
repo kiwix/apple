@@ -77,7 +77,6 @@
 "file_import.alert.no_open.title" = "Unable to open file";
 "file_import.alert.no_open.message" = "%@ cannot be opened.";
 
-"article_cell.no_snippet.label" = "No snippet";
 "attribute.detail.unknown" = "Unknown";
 
 "download_task_cell.status.failed" = "Failed";

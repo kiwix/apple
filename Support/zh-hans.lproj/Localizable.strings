@@ -55,7 +55,6 @@
 "external_link_handler.alert.not_loading.description" = "已点击外部链接。但您当前的设置不允许加载该链接。";
 "file_import.alert.no_open.title" = "无法打开文件";
 "file_import.alert.no_open.message" = "无法打开 %@。";
-"article_cell.no_snippet.label" = "无片段";
 "attribute.detail.unknown" = "未知";
 "download_task_cell.status.failed" = "失败";
 "download_task_cell.status.downloading" = "正在下载...";

@@ -51,7 +51,6 @@
 "external_link_handler.alert.not_loading.description" = "An buga hanyar haɗi ta waje. Koyaya, saitin ku na yanzu ba ya ba da izinin ɗora shi.";
 "file_import.alert.no_open.title" = "Rashin iya buɗe fayil";
 "file_import.alert.no_open.message" = "%@ ba za a iya buɗewa ba.";
-"article_cell.no_snippet.label" = "Babu wani sashi";
 "attribute.detail.unknown" = "Ba a sani ba";
 "download_task_cell.status.failed" = "fadi";
 "download_task_cell.status.downloading" = "Saukowa...";

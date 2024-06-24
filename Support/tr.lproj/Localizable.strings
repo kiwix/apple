@@ -47,7 +47,6 @@
 "external_link_handler.alert.not_loading.description" = "Harici bir bağlantıya tıklanıldı ancak mevcut ayarınız bunun yüklenmesine izin vermiyor.";
 "file_import.alert.no_open.title" = "Dosya açılamıyor";
 "file_import.alert.no_open.message" = "%@ açılamadı";
-"article_cell.no_snippet.label" = "Parçacık yok";
 "attribute.detail.unknown" = "Bilinmiyor";
 "download_task_cell.status.failed" = "Başarısız";
 "download_task_cell.status.downloading" = "Yükleniyor...";

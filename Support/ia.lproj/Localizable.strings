@@ -52,7 +52,6 @@
 "external_link_handler.alert.not_loading.description" = "Un ligamine externe ha essite toccate, ma tu configuration actual non permitte cargar lo.";
 "file_import.alert.no_open.title" = "Impossibile aperir le file";
 "file_import.alert.no_open.message" = "%@ non pote esser aperite.";
-"article_cell.no_snippet.label" = "Necun extracto";
 "attribute.detail.unknown" = "Incognite";
 "download_task_cell.status.failed" = "Fallite";
 "download_task_cell.status.downloading" = "Discargamento…";

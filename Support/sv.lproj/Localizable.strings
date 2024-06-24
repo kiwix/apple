@@ -55,7 +55,6 @@
 "external_link_handler.alert.not_loading.description" = "En extern länk har tryckts. Men dina nuvarande inställningar tillåter inte att länken laddas in.";
 "file_import.alert.no_open.title" = "Kunde inte öppna filen";
 "file_import.alert.no_open.message" = "%@ kan inte öppnas.";
-"article_cell.no_snippet.label" = "Inget utdrag";
 "attribute.detail.unknown" = "Okänd";
 "download_task_cell.status.failed" = "Misslyckades";
 "download_task_cell.status.downloading" = "Laddar ned...";

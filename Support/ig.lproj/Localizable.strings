@@ -51,7 +51,6 @@
 "external_link_handler.alert.not_loading.description" = "E nwere nkokọ mpụga. Otú ọ dịla, ọnọdụ nhazị gị ugbu a anaghị ekwe ka a na-ebudata ya";
 "file_import.alert.no_open.title" = "Enweghị ike imepe faịlụ zim";
 "file_import.alert.no_open.message" = "Enweghị ike imeghe %@.";
-"article_cell.no_snippet.label" = "Enweghị snippet";
 "attribute.detail.unknown" = "Nke amaghị";
 "download_task_cell.status.failed" = "ọ gaghị";
 "download_task_cell.status.downloading" = "Na-ebudata...";
